@@ -8,6 +8,8 @@ $(document).ready(function(){
 	//alert(alto);
 
 	$("#lista-consultas tbody").css({height:alto});
+
+
 });
 	
 /**
@@ -60,4 +62,11 @@ function colum2(){
 		});
 
 	}
+}
+
+/**
+* CARGA LAS CONSULTAS
+*/
+function Consultas(){
+	
 }
