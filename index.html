@@ -2,84 +2,196 @@
 <head>
 	<title>Ipurdy</title>
 	<meta charset="utf-8">
-	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1"> 
 
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<!-- <link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.0/jquery.mobile-1.2.0.min.css" /> -->
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.0-rc.1/jquery.mobile-1.3.0-rc.1.min.css" />
+
+	<script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+	<!-- <script src="js/jquery.mobile-1.2.0.min.js"></script> -->
+	<script type="text/javascript" src="js/jquery.mobile-1.3.0-rc.1.min.js"></script>
+	
 	<script src="js/main.js"></script>
 </head>
 <body>
 
-	<div class="colums" id="colum1">
-		<div class="bottonset" >
-			<div class="boton" id="consultas-boton">
-				Consultas
+	<div data-role="page" id="home" data-title="Ipurdy" >
+
+		<div data-role="header" data-position="fixed">
+			<div data-role="navbar" data-id="navbar" data-fullscreen="true" >
+				<ul>
+					<li>
+						<a href="#home" class="ui-btn-active ui-state-persist">Consultar</a>
+					</li>
+					
+					<li>
+						<a href="#sincronizar" data-rel="dialog" data-transition="slideup" class="ui-state-persist">Sincronizar</a>
+					</li>
+				</ul>
 			</div>
-			<div class="boton" id="sincronizar-boton">
-				Sincronizar
+			<!-- /navbar -->
+
+			<div class="ui-grid-c">
+				<div class="ui-block-a">
+					<label for="slect-tipo" class="select-label">
+						Tipo
+					</label>
+					<select data-mini="true" name="slect-tipo" id="slect-tipo">
+					</select>
+				</div>
+				<div class="ui-block-b">
+					<label for="select-estado" class="select-label">
+						Estado
+					</label>
+					<select data-mini="true" name="select-estado" id="select-estado">
+					   <option value="standard">Standard: 7 day</option>
+					</select>
+				</div>
+				<div class="ui-block-c">
+					<label for="select-choice-2" class="select-label">
+						Asesor
+					</label>
+					<select data-mini="true" name="select-choice-2" id="select-choice-2">
+					   <option value="standard">Standard: 7 day</option>
+					   <option value="rush">Rush: 3 days</option>
+					   <option value="express">Express: next day</option>
+					   <option value="overnight">Overnight</option>
+					</select>
+				</div>
+				<div class="ui-block-d">
+					<label for="select-choice-3" class="select-label">
+						Sucursal
+					</label>
+					<select data-mini="true" name="select-choice-3" id="select-choice-3">
+					   <option value="standard">Standard: 7 day</option>
+					   <option value="rush">Rush: 3 days</option>
+					   <option value="express">Express: next day</option>
+					   <option value="overnight">Overnight</option>
+					</select>
+				</div>
 			</div>
+
+			<input type="search" name="buscar" id="buscar" value="" data-mini="false" placeholder="Buscar" />
 		</div>
 
-		<!-- selectores -->
-		<div class="selectors">
-			<div class="selects">
-				<select>
-					<option>A</option>
-					<option>B</option>
-					<option>C</option>
-				</select>
-			</div>
-			<div class="selects">
-				<select>
-					<option>A</option>
-					<option>B</option>
-					<option>C</option>
-				</select>
-			</div>
-			<div class="selects">
-				<select>
-					<option>A</option>
-					<option>B</option>
-					<option>C</option>
-				</select>
-			</div>
-			<div class="selects">
-				<select>
-					<option>A</option>
-					<option>B</option>
-					<option>C</option>
-				</select>
-			</div>
+		<div data-role="content">
+			<!-- tabla con los contenidos -->
+			<table data-role="table" data-mode="reflow" id="resultados" class="ui-responsive">
+				<thead>
+					<tr>
+						<th data-priority="1" >
+							Unidad
+						</th>
+						<th data-priority="2" >
+							Color
+						</th>
+						<th data-priority="3" >
+							Modelo
+						</th>
+						<th data-priority="4" >
+							Fecha Entrega
+						</th>
+						<th data-priority="5" >
+							Cliente
+						</th>
+						<th data-priority="2" >
+							Sucursal
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!--<tr id="ID">
+						<td>
+							UNIDAD
+						</td>
+						<td>
+							COLOR
+						</td>
+						<td>
+							MODELO
+						</td>
+						<td>
+							FECHAENTREGA
+						</td>
+						<td>
+							CLIENTE
+						</td>
+						<td>
+							UBICACION
+						</td>
+					</tr>-->
+				</tbody>
+			</table>
+
 		</div>
 
-		<!-- consultas -->
-		<div class="consultas" id="lista-consultas">
-			<table class="titles">
-				<tr>
-					<td>
-						tipo
-					</td>
-					<td>
-						Marca
-					</td>
-				</tr>
-			</table>
-			<table id="consultas" >
-				<tr>
-					<td>
-						BLBAL
-					</td>
-					<td>
-						TOYOTA
-					</td>
-				</tr>
-
-				<tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr><tr><td>BLBAL</td><td>TOYOTA</td></tr>
-			</table>
+		<div data-role="footer" id="home-footer" data-position="fixed">
+			<h3></h3>
 		</div>
 	</div>
-	<div class="colums" id="colum2">
-		<div id="content">
-			auto
+	<!-- home page -->
+
+	<div data-role="page" id="sincronizar" data-title="Sincronizar">
+		<form id="form-sincronizar">
+			<div data-role="header">
+				<h1>Sincronizar</h1>
+			</div>
+			<div data-role="content">
+				<fieldset>
+					<input type="text" name="username" id="username" value="" placeholder="Username" />
+					<input type="password" name="password" id="password" value="" placeholder="password" />
+				</fieldset>
+
+				<fieldset class="ui-grid-a">
+					<div class="ui-block-a" >
+						<button type="button" class="cancelar-dialogo" >
+							Cancel
+						</button>
+					</div>
+					<div class="ui-block-b">
+						<button type="submit">
+							Sincronizar
+						</button>
+					</div>	   
+				</fieldset>
+			</div>
+		</form>
+	</div>
+	<!-- sincronizar page -->
+
+	<!-- pagina de la info -->
+	<div data-role="page" data-add-back-btn="true" data-back-btn-text="Atras" id="info" >
+		<div data-role="header" >
+			<h1>Info</h1>
+		</div>
+		<div data-role="content" >
+			informacion
+		</div>
+		<div data-role="footer" data-position="fixed">
+			<h1>footer</h1>
+		</div>
+	</div>
+
+	<div data-role="page" id="error">
+		<div data-role="header">
+			<h1>Error</h1>
+		</div>
+		<div data-role="content">
+			<p>No se ha sincronizado</p>
+			<p>Se requiere una conexion a internet</p>
+			<fieldset class="ui-grid-a">
+				<div class="ui-block-a" >
+					<button type="button" class="cancelar-dialogo" >
+						Cancel
+					</button>
+				</div>
+				<div class="ui-block-b">
+					<button type="submit">
+						Re intentar
+					</button>
+				</div>	   
+			</fieldset>
 		</div>
 	</div>
 
