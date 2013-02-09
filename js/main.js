@@ -34,7 +34,11 @@ $(document).ready(function(){
     	event.stopPropagation();
 		alert('no envia');
 		return false;
-	})
+	});
+
+	$("#sincronizar-boton").click(function(){
+		Sincronizar();
+	});
 });
 
 /**
@@ -52,6 +56,16 @@ function Data(){
 * SINCRONIZA
 */
 function Sincronizar(){
+	var username = $("#username").val();
+	var password = $("#password").val();
+
+	var queryParams = '&username='+username+"&password="+password;
+
+	if( !Validar(username) && !Validar(password) ){
+		alert('datos invaliudos');
+		return;
+	}
+
 	$.ajax({
 		url: params,
 	    type: 'get',
@@ -84,8 +98,10 @@ function Sincronizar(){
 				$("#home-footer h3").html("Ultima actualizacion: cookie");
 			}
 
+			Cargar(data);
+
 			//carga la datbla sin filtrar
-			$.each(data.INFOUNIDAD, function(f, c){
+			/*$.each(data.INFOUNIDAD, function(f, c){
 				//compone la fila
 				var tr = '<tr id="'+c.UNIDAD+'">'+
 							'<td><b class="ui-table-cell-label">Unidad</b>'+
@@ -124,7 +140,7 @@ function Sincronizar(){
 				table += tr;
 
 				tipos.push(c.TIPO_VEHICULO);
-			});
+			});*/
 			
 			//elimina elementos duplicados 
 			EliminarDuplicados();
@@ -149,6 +165,20 @@ function Sincronizar(){
 	});
 }
 
+/**
+* VALIDA LOS INPUTS DE SINCRONIZAR
+*/
+function Validar(text){
+	if( text != null && text != '' && text != undefined ){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+/**
+* ELIMINA DUPLICADOS DE LOS ARRAYS
+*/
 function EliminarDuplicados(){
 	//elimina elementos duplicacos
 	tipos = tipos.filter(function(elem, pos) {
@@ -169,6 +199,55 @@ function EliminarDuplicados(){
 		return sucursales.indexOf(elem) == pos;
 	});
 	*/
+}
+
+/**
+* CARGA LOS DATOS EN LA TABLA
+*/
+function Cargar(datos){
+	//datos = localStorage.resultados;
+	
+	//carga la datbla sin filtrar
+	$.each(datos.INFOUNIDAD, function(f, c){
+		//compone la fila
+		var tr = '<tr id="'+c.UNIDAD+'">'+
+					'<td><b class="ui-table-cell-label">Unidad</b>'+
+						c.UNIDAD+'</td>'+
+					'<td><b class="ui-table-cell-label">Color</b>'+c.DESC_COLOR_EXT+'</td>'+
+					'<td><b class="ui-table-cell-label">Modelo</b>'+
+						c.MODELO+'</td>'+
+					'<td><b class="ui-table-cell-label">Fecha llegada</b>';
+				
+		if( jQuery.isEmptyObject(c.FECHA_LLEGADA) ){
+			$.each(c.FECHA_LLEGADA, function(x,valor){
+			tr += '---';
+			})
+		}else{
+			tr += c.FECHA_LLEGADA;
+		}
+			tr	+='</td>'+
+			'<td><b class="ui-table-cell-label">Cliente</b>';
+		if( jQuery.isEmptyObject(c.NOMBRE_CLIENTE) ){
+			tr += '---';
+		}else{
+			tr += c.NOMBRE_CLIENTE;
+		}
+		tr	+='</td>';
+
+		tr	+='<td><b class="ui-table-cell-label">Sucursal</b>';
+		//sucursal
+		if( jQuery.isEmptyObject(c.SUCURSAL) ){
+			tr += '---';
+		}else{
+			tr += c.SUCURSAL;
+		}
+			tr	+='</td>'+
+				'</tr>';
+				
+			table += tr;
+
+		tipos.push(c.TIPO_VEHICULO);
+	});
 }
 
 /**
