@@ -22,22 +22,22 @@
 			<div data-role="navbar" data-id="navbar" data-fullscreen="true" >
 				<ul>
 					<li>
-						<a href="#home" class="ui-btn-active ui-state-persist">Consultar</a>
+						<a href="#home" >Consultar</a>
 					</li>
 					
 					<li>
-						<a href="#sincronizar" data-rel="dialog" data-transition="slideup" class="ui-state-persist">Sincronizar</a>
+						<a href="#sincronizar" data-rel="dialog" data-transition="slideup" >Sincronizar</a>
 					</li>
 				</ul>
 			</div>
-			<!-- /navbar -->
+			<!-- navbar -->
 
 			<div class="ui-grid-c">
 				<div class="ui-block-a">
-					<label for="slect-tipo" class="select-label">
+					<label for="select-tipo" class="select-label">
 						Tipo
 					</label>
-					<select data-mini="true" name="slect-tipo" id="slect-tipo">
+					<select data-mini="true" name="select-tipo" id="select-tipo">
 					</select>
 				</div>
 				<div class="ui-block-b">
@@ -45,7 +45,12 @@
 						Estado
 					</label>
 					<select data-mini="true" name="select-estado" id="select-estado">
-					   <option value="standard">Standard: 7 day</option>
+					   <option value="disponible">Disponible</option>
+						<option value="disponibleInventario">Disponible en Inventario</option>
+						<option value="libre">Libre</option>
+						<option value="libreInventario">Libre en Inventario</option>
+						<option value="separadoSeparado">Separado</option>
+						<option value="separadoInventario">Separado en Inventario</option>
 					</select>
 				</div>
 				<div class="ui-block-c">
@@ -71,31 +76,31 @@
 					</select>
 				</div>
 			</div>
-
+			<!-- busqueda -->
 			<input type="search" name="buscar" id="buscar" value="" data-mini="false" placeholder="Buscar" />
 		</div>
 
 		<div data-role="content">
 			<!-- tabla con los contenidos -->
-			<table data-role="table" data-mode="reflow" id="resultados" class="ui-responsive">
+			<table data-role="table" data-filter="true" data-mode="reflow" id="resultados" class="ui-responsive">
 				<thead>
 					<tr>
-						<th data-priority="1" >
+						<th data-priority="1" data-sortable="true">
 							Unidad
 						</th>
-						<th data-priority="2" >
+						<th data-priority="2" data-sortable="true">
 							Color
 						</th>
-						<th data-priority="3" >
+						<th data-priority="3" data-sortable="true">
 							Modelo
 						</th>
-						<th data-priority="4" >
+						<th data-priority="4" data-sortable="true">
 							Fecha Entrega
 						</th>
-						<th data-priority="5" >
+						<th data-priority="5" data-sortable="true">
 							Cliente
 						</th>
-						<th data-priority="2" >
+						<th data-priority="6" data-sortable="true">
 							Sucursal
 						</th>
 					</tr>
