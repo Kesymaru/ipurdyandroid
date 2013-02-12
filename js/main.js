@@ -5,9 +5,11 @@
 
 var datos = [];
 var tipos = [];
+var estados = [];
 var asesores = [];
 var sucursales = [];
 var table = '';
+var reservas = [];
 
 var params = 'js/testdata.json';
 //var params = 'http://77digital.digimoblabs.com/webServiceJson.php?username=ipurdy&password=12345678&&action=vehiculos';
@@ -40,12 +42,28 @@ $(document).ready(function(){
 		return false;
 	});
 
+	$("#consultar").click(function(){
+		Consultar();
+	});
+
 	$("#sincronizar-boton").click(function(){
 		Sincronizar();
 	});
-
-	//funcion de buscar
+	
+	//funciones para los filtros
 	Buscar();
+	Tipos();
+	Estados();
+	Asesores();
+	Sucursales();
+
+	Consultar();
+});
+
+/**
+* REALIZA CONSULTA
+*/
+function Consultar(){
 
 	//CARGA DATOS GUARDADOS
 	//loader
@@ -55,7 +73,7 @@ $(document).ready(function(){
 	Selects();
 
 	$.mobile.hidePageLoadingMsg();
-});
+}
 
 /**
 * SINCRONIZA OBTIENE DATOS
@@ -67,8 +85,41 @@ function Sincronizar(){
 	var queryParams = '&username='+username+"&password="+password;
 
 	if( !Validar(username) && !Validar(password) ){
+		alert('Por favor increse las credenciales');
 		return;
+	}else{
+		if( !ValidaCredenciales(username, password) ){
+			alert('Credenciales Invalidas');
+			return;
+		}
 	}
+
+	$.ajax({
+		url: 'http://77digital.digimoblabs.com/webServiceJsonTest2.php?username=ipurdy&password=GPM2013&action=reservas',
+		type: 'get',
+		async: true,
+		dataType: 'json',
+		cache: true,
+		success: function(reservas){
+			localStorage['reservas'] = JSON.stringify(reservas);;
+		},
+		fail: function(response){
+			var error = '<h2>Ha ocurrido un error al incronizar reservas</h2>'+
+						'<fieldset class="ui-grid-a">'+
+							'<div class="ui-block-a" >'+
+								'<button type="button" class="cancelar-dialogo" >'+
+									'Cancel'+
+								'</button>'+
+							'</div>'+
+							'<div class="ui-block-b">'+
+								'<a clas="reintentar" type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
+									'Re intentar'+
+								'</a>'+
+							'</div>'+   
+						'</fieldset>';
+			Error('Error Sincronizar', error);
+		}
+	});
 
 	$.ajax({
 		url: params,
@@ -142,6 +193,21 @@ function Validar(text){
 }
 
 /**
+* VALIDA CREDENCIALES
+*/
+function ValidaCredenciales(username, password){
+	if( username === 'IPURDY' && password === 'GPM2013' ){
+		return true;
+	}else if( username === 'IPURDYL' && password === 'LEXUS2013' ){
+		return true;
+	}else if( username === 'IPURDYPM' && password === 'PMCR2013' ){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+/**
 * CARGA LOS DATOS EN LA TABLA
 * datos -> object con los datos a cargar
 */
@@ -150,8 +216,17 @@ function Cargar(){
 
 	//carga la datbla sin filtrar
 	$.each(datos.INFOUNIDAD, function(f, c){
+		
+		var clase = c.TIPO_VEHICULO+' '+c.ESTADO+' ';
+		if( !jQuery.isEmptyObject(c.NOMBRE_VENDEDOR) ){
+			clase += c.NOMBRE_VENDEDOR+' ';
+		}
+		if( !jQuery.isEmptyObject(c.SUCURSAL) ){
+			clase += c.SUCURSAL;
+		}
+
 		//compone la fila
-		var tr = '<tr id="'+c.UNIDAD+'">'+
+		var tr = '<tr id="'+c.UNIDAD+'" class="'+clase+'">'+
 					'<td><b class="ui-table-cell-label">Unidad</b>'+
 						c.UNIDAD+'</td>'+
 					'<td><b class="ui-table-cell-label">Color</b>'+c.DESC_COLOR_EXT+'</td>'+
@@ -181,6 +256,7 @@ function Cargar(){
 			tr += '---';
 		}else{
 			tr += c.SUCURSAL;
+			sucursales.push(c.SUCURSAL);
 		}
 			tr	+='</td>'+
 				'</tr>';
@@ -188,8 +264,10 @@ function Cargar(){
 			table += tr;
 
 		tipos.push(c.TIPO_VEHICULO);
-		asesores.push(c.ESTADO);
-		sucursales.push(c.SUCURSAL);
+		if( !jQuery.isEmptyObject(c.NOMBRE_VENDEDOR) ){
+			asesores.push(c.NOMBRE_VENDEDOR);
+		}
+		//sucursales.push(c.SUCURSAL);
 	});
 	
 	$("#resultados tbody").html('');
@@ -227,20 +305,20 @@ function EliminarDuplicados(){
 	tipos = tipos.filter(function(elem, pos) {
 		return tipos.indexOf(elem) == pos;
 	});
+	tipos.sort();
 	localStorage['tipos'] = JSON.stringify(tipos);
 
 	asesores = asesores.filter(function(elem, pos) {
 		return asesores.indexOf(elem) == pos;
 	});
+	asesores.sort();
 	localStorage['asesores'] = JSON.stringify(asesores);
 
 	sucursales = sucursales.filter(function(elem, pos) {
 		return sucursales.indexOf(elem) == pos;
 	});
+	sucursales.sort();
 	localStorage['sucursales'] = JSON.stringify(sucursales);
-
-	//funciones para el filtrado
-	Tipos();
 }
 
 /**
@@ -248,21 +326,27 @@ function EliminarDuplicados(){
 * USA EL localStorage PARA OBTENER LOS DATOS
 */
 function Selects(){
+	//defaults
+	$("#select-tipo").append('<option value="todos">Todos</option>');
+	$("#select-asesor").append('<option value="todos">Todos</option>');
+
 	tipos = JSON.parse(localStorage['tipos']);
-	$.each(tipos, function(c, valor){
+	$.each(tipos, function(f, valor){
 		var option = '<option value="'+valor+'">'+valor+'</option>';
 		$("#select-tipo").append(option);
 	});
-}
 
-/**
-* CARGA INFORMACION EN INFO PAGE
-* id -> id de la info
-*/
-function InfoPage(id){
-	//var datos = resultados.id;
-	//alert(id);
-	$.mobile.changePage('#info', { transition: "slide"} );
+	asesores = JSON.parse(localStorage['asesores']);
+	$.each(asesores, function(f, valor){
+		var option = '<option value="'+valor+'">'+valor+'</option>';
+		$("#select-asesor").append(option);
+	});
+
+	sucursales = JSON.parse(localStorage['sucursales']);
+	$.each(sucursales, function(f, valor){
+		var option = '<option value="'+valor+'">'+valor+'</option>';
+		$("#select-sucursal").append(option);
+	});
 }
 
 /************************* FILTROS ******************/
@@ -325,9 +409,33 @@ function Buscar(){
 * FILTRA SELECION DE TIPOS
 */
 function Tipos(){
-	$("#select-tipos").change(function(){
-		console.log('cambio tipos');
-		alert( $(this).find("option:selected").val() );
+	$("#select-tipo").change(function(){
+		var tipo = $(this).find("option:selected").val();
+
+		//muestra todos los tipos
+		if( tipo == 'todos' ){
+			var tipos = localStorage['tipos'];
+			$.mobile.showPageLoadingMsg();
+			
+			$.each(tipos, function(f, valor){
+				$("."+valor).show();
+			});
+
+			$.mobile.hidePageLoadingMsg();
+			return;
+		}
+
+		$.mobile.showPageLoadingMsg();
+		$("#resultados tbody tr").each(function(){
+			if( $(this).hasClass(tipo) ){
+				$(this).show();
+			}else{
+				if( $(this).is(":visible") ){
+					$(this).hide();
+				}
+			}
+		});
+		$.mobile.hidePageLoadingMsg();
 	});
 }
 
@@ -335,7 +443,218 @@ function Tipos(){
 * FILTRA SELECCION DE ESTADOS
 */
 function Estados(){
+	$("#select-estado").change(function(){
+		var estado = $(this).find("option:selected").val();
 
+		//mustra todos los estados
+		if( estado == 'todos' ){
+			var estados = localStorage['estados'];
+
+			$.mobile.showPageLoadingMsg();
+			$.each(estados, function(f, valor){
+				$("."+valor).show();
+			});
+			$.mobile.hidePageLoadingMsg();
+		}
+
+		if( estado == 'disponible'){
+			$.mobile.showPageLoadingMsg();
+			$("#resultados tbody tr").each(function(){
+				if( $(this).hasClass('S') || $(this).hasClass('ST') || $(this).hasClass('L') || $(this).hasClass('T')){
+					$(this).show();
+				}else{
+					if( $(this).is(":visible") ){
+						$(this).hide();
+					}
+				}
+			});
+			$.mobile.hidePageLoadingMsg();
+		}
+		if( estado == 'disponibleInventario'){
+			$.mobile.showPageLoadingMsg();
+			$("#resultados tbody tr").each(function(){
+				if( $(this).hasClass('S') || $(this).hasClass('L') ){
+					$(this).show();
+				}else{
+					if( $(this).is(":visible") ){
+						$(this).hide();
+					}
+				}
+			});
+			$.mobile.hidePageLoadingMsg();
+		}
+		if( estado == 'libre'){
+			$.mobile.showPageLoadingMsg();
+			$("#resultados tbody tr").each(function(){
+				if( $(this).hasClass('L') || $(this).hasClass('T') ){
+					$(this).show();
+				}else{
+					if( $(this).is(":visible") ){
+						$(this).hide();
+					}
+				}
+			});
+			$.mobile.hidePageLoadingMsg();
+		}
+		if(estado == 'libreInventario'){
+			$.mobile.showPageLoadingMsg();
+			$("#resultados tbody tr").each(function(){
+				if( $(this).hasClass('L') ){
+					$(this).show();
+				}else{
+					if( $(this).is(":visible") ){
+						$(this).hide();
+					}
+				}
+			});
+			$.mobile.hidePageLoadingMsg();
+		}
+		if( estado == 'separado'){
+			$.mobile.showPageLoadingMsg();
+			$("#resultados tbody tr").each(function(){
+				if( $(this).hasClass('S') || $(this).hasClass('ST') ){
+					$(this).show();
+				}else{
+					if( $(this).is(":visible") ){
+						$(this).hide();
+					}
+				}
+			});
+			$.mobile.hidePageLoadingMsg();
+		}
+		if( estado == 'separadoInventario'){
+			$.mobile.showPageLoadingMsg();
+			$("#resultados tbody tr").each(function(){
+				if( $(this).hasClass('S') ){
+					$(this).show();
+				}else{
+					if( $(this).is(":visible") ){
+						$(this).hide();
+					}
+				}
+			});
+			$.mobile.hidePageLoadingMsg();
+		}
+	});
+}
+
+/**
+* FILTRA SELECCION
+*/
+function Asesores(){
+	$("#select-asesor").change(function(){
+		var asesor = $(this).find("option:selected").val();
+		alert(asesor);
+
+		//muestra todos los tipos
+		if( asesor == 'todos' ){
+			var asesores = localStorage['asesores'];
+			$.mobile.showPageLoadingMsg();
+			
+			$.each(asesores, function(f, valor){
+				$("."+valor).show();
+			});
+
+			$.mobile.hidePageLoadingMsg();
+			return;
+		}
+
+		$.mobile.showPageLoadingMsg();
+		$("#resultados tbody tr").each(function(){
+			if( $(this).hasClass(asesor) ){
+				$(this).show();
+			}else{
+				if( $(this).is(":visible") ){
+					$(this).hide();
+				}
+			}
+		});
+		$.mobile.hidePageLoadingMsg();
+	});
+}
+
+/**
+* FILTRO PARA SELECCION DE SUCURSAL
+*/
+function Sucursales(){
+	$("#select-sucursal").change(function(){
+		var sucursal = $(this).find("option:selected").val();
+
+		//muestra todos los tipos
+		if( sucursal == 'todos' ){
+			var sucursal = localStorage['sucursales'];
+			$.mobile.showPageLoadingMsg();
+			
+			$.each(sucursal, function(f, valor){
+				$("."+valor).show();
+			});
+
+			$.mobile.hidePageLoadingMsg();
+			return;
+		}
+
+		$.mobile.showPageLoadingMsg();
+		$("#resultados tbody tr").each(function(){
+			if( $(this).hasClass(sucursal) ){
+				$(this).show();
+			}else{
+				if( $(this).is(":visible") ){
+					$(this).hide();
+				}
+			}
+		});
+		$.mobile.hidePageLoadingMsg();
+		
+		/*var opciones = [];
+		opciones.push = $(this).find("option:selected").val();
+		opciones.push = $("#select-asesor").find("option:selected").val();
+		opciones.push = $("#select-tipo").find("option:selected").val();
+		opciones.push = $("#select-estado").find("option:selected").val();
+		Filtrar(opciones)*/
+	});
+}
+
+/**
+* FILTRA CON LAS OPCIONES SELECCIONADAS
+*/
+function Filtrar(opciones){
+	$.mobile.showPageLoadingMsg();
+	$("#resultados tbody tr").each(function(){
+		var element = $(this);
+		
+		$.each(opciones, function(f, opcion){
+			if( element.hasClass(opcion) ){
+				element.addClass('si');
+				element.show();
+			}else{
+				if( !element.hasClass('si') ){
+					element.hide();
+				}
+			}
+		});
+			
+	});
+	$.mobile.hidePageLoadingMsg();
+}
+
+/************************* PAGINA DE INFORMACION ***************************/
+
+/**
+* CARGA INFORMACION EN INFO PAGE
+* id -> id de la info
+*/
+function InfoPage(id){
+	//var datos = resultados.id;
+	//alert(id);
+	$.mobile.changePage('#info', { transition: "slide"} );
+
+	reservas = JSON.parse(localStorage['reservas']);
+
+	$.each(reservas.INFOUNIDAD, function(f, c){
+		if(c.UNIDAD === id){
+			console.log('encontrado');
+		}
+	});
 }
 
 /************************* HELPES *******************/

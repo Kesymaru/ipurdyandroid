@@ -22,7 +22,7 @@
 			<div data-role="navbar" data-id="navbar" data-fullscreen="true" >
 				<ul>
 					<li>
-						<a href="#home" >Consultar</a>
+						<a href="#home" id="consultar" >Consultar</a>
 					</li>
 					
 					<li>
@@ -45,7 +45,8 @@
 						Estado
 					</label>
 					<select data-mini="true" name="select-estado" id="select-estado">
-					   <option value="disponible">Disponible</option>
+						<option value="todos">Todos</option>
+						<option value="disponible">Disponible</option>
 						<option value="disponibleInventario">Disponible en Inventario</option>
 						<option value="libre">Libre</option>
 						<option value="libreInventario">Libre en Inventario</option>
@@ -54,25 +55,17 @@
 					</select>
 				</div>
 				<div class="ui-block-c">
-					<label for="select-choice-2" class="select-label">
+					<label for="select-asesor" class="select-label">
 						Asesor
 					</label>
-					<select data-mini="true" name="select-choice-2" id="select-choice-2">
-					   <option value="standard">Standard: 7 day</option>
-					   <option value="rush">Rush: 3 days</option>
-					   <option value="express">Express: next day</option>
-					   <option value="overnight">Overnight</option>
+					<select data-mini="true" name="select-asesor" id="select-asesor">
 					</select>
 				</div>
 				<div class="ui-block-d">
-					<label for="select-choice-3" class="select-label">
+					<label for="select-sucursal" class="select-label">
 						Sucursal
 					</label>
-					<select data-mini="true" name="select-choice-3" id="select-choice-3">
-					   <option value="standard">Standard: 7 day</option>
-					   <option value="rush">Rush: 3 days</option>
-					   <option value="express">Express: next day</option>
-					   <option value="overnight">Overnight</option>
+					<select data-mini="true" name="select-sucursal" id="select-sucursal">
 					</select>
 				</div>
 			</div>
@@ -169,7 +162,35 @@
 			<h1>Info</h1>
 		</div>
 		<div data-role="content" >
-			informacion
+			<div class="ui-grid-b">
+				<div class="ui-block-a">
+					<table id="table-info">
+						<thead>
+							<th>Unidad</th>
+							<th>Tipo Vehiculo</th>
+							<th>Color</th>
+							<th>Ano Modelo</th>
+							<th>Ubicacion</th>
+							<th>Fecha Llegada</th>
+							<th>Equipamiento</th>
+							<th>Extras Alistado</th>
+							<th>Notas</th>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</di>
+				<div class="ui-block-b">
+					<table id="table-reservas" >
+						<thead>
+							<th>Reserva</th>
+							<th>Entrega</th>
+							<th>Cliente</th>
+							<th>Vendedor</th>
+						</thead>
+						<tbody></tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 		<div data-role="footer" data-position="fixed">
 			<h1>footer</h1>
