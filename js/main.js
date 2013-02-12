@@ -11,8 +11,9 @@ var sucursales = [];
 var table = '';
 var reservas = [];
 
-var params = 'js/testdata.json';
-//var params = 'http://77digital.digimoblabs.com/webServiceJson.php?username=ipurdy&password=12345678&&action=vehiculos';
+//var link = 'js/testdata.json';
+//var link = 'http://77digital.digimoblabs.com/webServiceJson.php?username=ipurdy&password=12345678&&action=vehiculos';
+var link = 'http://77digital.digimoblabs.com/webServiceJsonTest2.php';
 
 $(window).unload(function(){
 	//alert('adios');
@@ -34,13 +35,6 @@ $(document).ready(function(){
 			InfoPage($(this).attr('id'));
 		});
 	});
-	
-	$("#form-sincronizar").live('submit',function(event){
-		event.preventDefault();
-    	event.stopPropagation();
-		alert('no envia');
-		return false;
-	});
 
 	$("#consultar").click(function(){
 		Consultar();
@@ -50,29 +44,49 @@ $(document).ready(function(){
 		Sincronizar();
 	});
 	
-	//funciones para los filtros
+	//FILTROS
 	Buscar();
 	Tipos();
 	Estados();
 	Asesores();
 	Sucursales();
 
+	//CARGA LOS DATOS
 	Consultar();
+
 });
 
 /**
 * REALIZA CONSULTA
 */
 function Consultar(){
+	//si tiene datos los carga
+	if(localStorage.getItem("datos") === null){
+		//no hay datos, debe sincronizar
+		var error = '<div class="error"><p>No existen datos locales.</p>'+
+					'<p>Por favor realice una sincronizacion.</p></div>'+
+						'<fieldset class="ui-grid-a">'+
+							'<div class="ui-block-a" >'+
+								'<button type="button" class="cancelar-dialogo" >'+
+									'Cancel'+
+								'</button>'+
+							'</div>'+
+							'<div class="ui-block-b">'+
+								'<a type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
+									'Sincronizar'+
+								'</a>'+
+							'</div>'+   
+						'</fieldset>';
+		Error('Primera Sincrizacion', error);
+	}else{
+		//loader
+		$.mobile.showPageLoadingMsg();
+		
+		Cargar();
+		Selects();
 
-	//CARGA DATOS GUARDADOS
-	//loader
-	$.mobile.showPageLoadingMsg();
-	
-	Cargar();
-	Selects();
-
-	$.mobile.hidePageLoadingMsg();
+		$.mobile.hidePageLoadingMsg();
+	}
 }
 
 /**
@@ -93,18 +107,48 @@ function Sincronizar(){
 			return;
 		}
 	}
+	$.mobile.showPageLoadingMsg();
 
+	//var paramsReservas = link + '?username='+username+'&password='+password+'&action=reservas';
+	//link = 'js/testreservas.json';
+	/*var paramsRervas = {"username" : username, "password" : password, "action" : "reservas"};
 	$.ajax({
-		url: 'http://77digital.digimoblabs.com/webServiceJsonTest2.php?username=ipurdy&password=GPM2013&action=reservas',
+		url: link,
+		data: paramsRervas,
 		type: 'get',
+		crossDomain: true,
+		//jsonpCallback : "Datos",
 		async: true,
-		dataType: 'json',
-		cache: true,
+		contentType: "application/json; charset=utf-8",
+        dataType: "json",
+		cache: false,
+		beforeSend: function(){
+			console.log('peticion reservas');
+		},
 		success: function(reservas){
-			localStorage['reservas'] = JSON.stringify(reservas);;
+			localStorage['reservas'] = JSON.stringify(reservas);
+			console.log('reservas listas');
 		},
 		fail: function(response){
-			var error = '<h2>Ha ocurrido un error al incronizar reservas</h2>'+
+			var error = '<h2>Ha ocurrido un error al incronizar las reservas</h2>'+
+						'<fieldset class="ui-grid-a">'+
+							'<div class="ui-block-a" >'+
+								'<button type="button" class="cancelar-dialogo" >'+
+									'Cancel'+
+								'</button>'+
+							'</div>'+
+							'<div class="ui-block-b">'+
+								'<a clas="reintentar" type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
+									'Re intentar'+
+								'</a>'+
+							'</div>'+   
+						'</fieldset>';
+			Error('Error Sincronizar', error);
+		},
+		error: function(response){
+			console.log(response);
+			var error = '<h2>Ha ocurrido un error al incronizar las reservas</h2>'+
+						'<h2>Error en ajax</h2>'+response+
 						'<fieldset class="ui-grid-a">'+
 							'<div class="ui-block-a" >'+
 								'<button type="button" class="cancelar-dialogo" >'+
@@ -120,20 +164,26 @@ function Sincronizar(){
 			Error('Error Sincronizar', error);
 		}
 	});
+	*/
 
+	//var paramsDatos = link + '?username='+username+'&password='+password+'&action=vehiculos';
+	//link = 'js/testdata.json';
+	console.log(link);
+	var paramsDatos = {"username" : username, "password" : password, "action" : "vehiculos"};
 	$.ajax({
-		url: params,
+		url: link,
+		data: paramsDatos,
 	    type: 'get',
+	    crossDomain: true,
 	    async: true,
-		dataType: 'json',
-		cache: true,
-		beforeSend: function(){
-			$.mobile.showPageLoadingMsg();
-		},
+		contentType: "application/json; charset=utf-8",
+        dataType: "json",
+		cache: false,
 		success: function(data){
+			console.log('datos listos');
 			//GUARDA DATOS
-			localStorage['datos'] = JSON.stringify(data);;
-
+			localStorage['datos'] = JSON.stringify(data);
+			/*
 			//actualiza la hora de la ultima sincronizacion
 			if( !jQuery.isEmptyObject(localStorage['datos']) > 0 ){
 				var date = new Date();
@@ -156,10 +206,28 @@ function Sincronizar(){
 			EliminarDuplicados();
 
 			//compone los selects
-			Selects();
+			Selects();*/
 		},
 		fail: function(response){
 			var error = '<h2>Ha ocurrido un error al incronizar</h2>'+
+						'<fieldset class="ui-grid-a">'+
+							'<div class="ui-block-a" >'+
+								'<button type="button" class="cancelar-dialogo" >'+
+									'Cancel'+
+								'</button>'+
+							'</div>'+
+							'<div class="ui-block-b">'+
+								'<a clas="reintentar" type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
+									'Re intentar'+
+								'</a>'+
+							'</div>'+   
+						'</fieldset>';
+			Error('Error Sincronizar', error);
+		},
+		error: function(response){
+			console.log(response);
+			var error = '<h2>Ha ocurrido un error al sincronizar los datos</h2>'+
+						'<h2>Error en ajax</h2>'+
 						'<fieldset class="ui-grid-a">'+
 							'<div class="ui-block-a" >'+
 								'<button type="button" class="cancelar-dialogo" >'+
@@ -178,7 +246,11 @@ function Sincronizar(){
 		$.mobile.hidePageLoadingMsg();
 		$('.ui-dialog').dialog('close');
 	});
+}
 
+function Datos(datos){
+	console.log('datos obtenidos');
+	console.log(datos);
 }
 
 /**
@@ -276,12 +348,12 @@ function Cargar(){
 	
 	//actualiza la ultima hora de sincronizacion
 	if(localStorage.getItem("lastUpdate") === null){
-		$("#home-footer h3")
+		$("#home-footer h3, #info-footer h3")
 			.hide()
-			.html("Debes Sincronizar")
+			.html("Sin Sincronizar")
 			.fadeIn();
 	}else{
-		$("#home-footer h3")
+		$("#home-footer h3, #info-footer h3")
 			.hide()
 			.html("Ultima actualizacion: "+localStorage['lastUpdate'])
 			.fadeIn();
@@ -356,15 +428,24 @@ function Selects(){
 */
 function Buscar(){
 	//permite mostrar todos al borrar o resetear la busqueda
-	$("#buscar").change(function(){
+	/*$("#buscar").change(function(){
 		if( $(this).val() == '' ){
 			$("#resultados tbody").removeClass('no');
         	$("#resultados tbody").removeClass('si');
         	$("#resultados tbody tr").show();
 		}
-	});
+	});*/
+
+	$.mobile.showPageLoadingMsg();
+	
 	//busca en la tabla, solo en el tbody
-	$("#buscar").keyup(function(){
+	$("#buscar").change(function(){
+		if( $(this).val() == '' ){
+			$("#resultados tbody").removeClass('no');
+        	$("#resultados tbody").removeClass('si');
+        	$("#resultados tbody tr").show();
+        	return;
+		}
 
 		var busqueda = $("#buscar").val();
 		busqueda = busqueda.replace(/\s/g, ""); //quita espacios en blanco
@@ -378,24 +459,25 @@ function Buscar(){
         	$.each(busqueda,function(fila, valor){
 
         		//busqueda
-        		if(element.text().search(new RegExp(valor, "i")) < 0 ){
+        		if( element.text().search(new RegExp(valor, "i")) < 0 ){
 	                
 	                element.hide();
 	                
-	                if( !element.hasClass('si') ){
+	                /*if( !element.hasClass('si') ){
 		 				element.addClass('no');	                	
-	                }
+	                }*/
 
 	            //muestra considencias
 	            } else {
+	            	element.show();
 
-	            	if( !element.hasClass('no') ){
+	            	/*if( !element.hasClass('no') ){
 	            		element.show();
 	                	count++;
 	            	}else{
 	            		element.removeClass('no');
 	            		element.addClass('si');
-	            	}
+	            	}*/
 	            }
         	});
 
@@ -403,6 +485,7 @@ function Buscar(){
         $("#resultados tbody").removeClass('no');
         $("#resultados tbody").removeClass('si');
 	});
+	$.mobile.hidePageLoadingMsg();
 }
 
 /**
@@ -651,8 +734,30 @@ function InfoPage(id){
 	reservas = JSON.parse(localStorage['reservas']);
 
 	$.each(reservas.INFOUNIDAD, function(f, c){
-		if(c.UNIDAD === id){
-			console.log('encontrado');
+		if( c.UNIDAD === id ){
+			$("#reserva").html('<b class="ui-table-cell-label">Reserva</b>'+c.FECHA_RESERVACION).trigger('create').trigger('create');
+			$("#entrega").html('<b class="ui-table-cell-label">Entrega</b>'+c.FECHA_ENTREGA).trigger('create').trigger('create');
+			$("#cliente").html('<b class="ui-table-cell-label">Cliente</b>'+c.NOMBRE_CLIENTE).trigger('create').trigger('create');
+			$("#vendedor").html('<b class="ui-table-cell-label">Vendedor</b>'+c.NOMBRE_VENDEDOR).trigger('create').trigger('create');
+		}
+	});
+
+	datos = JSON.parse(localStorage['datos']);
+
+	$.each(datos.INFOUNIDAD, function(f,c){
+		if( c.UNIDAD === id ){
+			$("#unidad").html('<b class="ui-table-cell-label">Unidad</b>'+c.UNIDAD).trigger('create').trigger('create');
+			$('#tipo-vehiculo').html('<b class="ui-table-cell-label">Tipo Vehiculo</b>'+c.TIPO_VEHICULO).trigger('create');
+			$('#color').html('<b class="ui-table-cell-label">Color</b>'+c.DESC_COLOR_EXT).trigger('create');
+			$('#ano-modelo').html('<b class="ui-table-cell-label">Año Modelo</b>'+c.MODELO).trigger('create');
+			$('#ubicacion').html('<b class="ui-table-cell-label">Ubicacion</b>'+c.DESC_UBICACION).trigger('create');
+			$('#fecha-llegada').html('<b class="ui-table-cell-label">Fecha Llegada</b>'+c.FECHA_LLEGADA).trigger('create');
+			$('#equipamiento').html('<b class="ui-table-cell-label">Equipamiento</b>'+c.EQUIPAMIENTO).trigger('create');
+			$('#extras-instaladas').html('<b class="ui-table-cell-label">Extras Instaladas</b>'+c.EXTRAS_INSTALADAS).trigger('create');
+			
+			if( !jQuery.isEmptyObject(c.NOTAS) ){
+				$('#notas').html('<b class="ui-table-cell-label">Notas</b>'+c.NOTAS).trigger('create');
+			}
 		}
 	});
 }
@@ -662,17 +767,17 @@ function InfoPage(id){
 /**
 * MUESTRA UN MENSAJE DE ERROR GENERICO
 */
-function Error(title,content){
+function Error(title, content){
 	$("#error div[data-role='header'] h1").html(title).trigger( "create" );
 	$("#error div[data-role='content']").html(content).trigger( "create" );
 	
 	$.mobile.changePage('#error', {role:'dialog'});
 
 	$('.cancelar-dialogo').click(function(){
-		$('.ui-dialog').dialog('close');
+		//$('.ui-dialog').dialog('close');
 	});
 	
 	$('.reintentar').click(function(){
-		$('.ui-dialog').dialog('close');
+		//$('.ui-dialog').dialog('close');
 	});
 }
