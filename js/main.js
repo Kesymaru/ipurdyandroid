@@ -109,9 +109,8 @@ function Sincronizar(){
 	}
 	$.mobile.showPageLoadingMsg();
 
-	//var paramsReservas = link + '?username='+username+'&password='+password+'&action=reservas';
 	//link = 'js/testreservas.json';
-	/*var paramsRervas = {"username" : username, "password" : password, "action" : "reservas"};
+	var paramsRervas = {"username" : username, "password" : password, "action" : "reservas"};
 	$.ajax({
 		url: link,
 		data: paramsRervas,
@@ -164,11 +163,8 @@ function Sincronizar(){
 			Error('Error Sincronizar', error);
 		}
 	});
-	*/
 
-	//var paramsDatos = link + '?username='+username+'&password='+password+'&action=vehiculos';
 	//link = 'js/testdata.json';
-	console.log(link);
 	var paramsDatos = {"username" : username, "password" : password, "action" : "vehiculos"};
 	$.ajax({
 		url: link,
@@ -180,10 +176,10 @@ function Sincronizar(){
         dataType: "json",
 		cache: false,
 		success: function(data){
-			console.log('datos listos');
 			//GUARDA DATOS
 			localStorage['datos'] = JSON.stringify(data);
-			/*
+			console.log('datos listos');
+
 			//actualiza la hora de la ultima sincronizacion
 			if( !jQuery.isEmptyObject(localStorage['datos']) > 0 ){
 				var date = new Date();
@@ -206,7 +202,7 @@ function Sincronizar(){
 			EliminarDuplicados();
 
 			//compone los selects
-			Selects();*/
+			Selects();
 		},
 		fail: function(response){
 			var error = '<h2>Ha ocurrido un error al incronizar</h2>'+
