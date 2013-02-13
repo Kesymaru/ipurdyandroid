@@ -11,21 +11,59 @@ var sucursales = [];
 var table = '';
 var reservas = [];
 
+/*************************** PHONEGAP **********************/
+
+//espera que cordova cargue
+document.addEventListener("deviceready", onDeviceReady, false);
+
+function onDeviceReady() {
+	console.log('device ready');
+
+	$('.cancelar-dialogo').click(function(){
+		$('.ui-dialog').dialog('close');
+	});
+
+	$("#resultados tr").each(function(){
+		$(this).click(function(){
+			InfoPage($(this).attr('id'));
+		});
+	});
+
+	$("#consultar").click(function(){
+		Consultar();
+	});
+
+	$("#sincronizar-boton, #bienvenida-sincronizar").click(function(){
+		Sincronizar();
+	});
+	
+	//FILTROS
+	//Buscar();
+	Tipos();
+	Estados();
+	Asesores();
+	Sucursales();
+
+	//CARGA LOS DATOS
+	Consultar();
+
+}
+
+/************************** JQUERY *********************/
+
 //var link = 'js/testdata.json';
 //var link = 'http://77digital.digimoblabs.com/webServiceJson.php?username=ipurdy&password=12345678&&action=vehiculos';
 var link = 'http://77digital.digimoblabs.com/webServiceJsonTest2.php';
-
-$(window).unload(function(){
-	//alert('adios');
-});
 
 $(document).bind('mobileinit',function(){
 	$.mobile.selectmenu.prototype.options.nativeMenu = true;
 	$.mobile.fixedToolbars.hide(true);
 });
 
+
 $(document).ready(function(){
-	
+	onDeviceReady();
+	/*
 	$('.cancelar-dialogo').click(function(){
 		$('.ui-dialog').dialog('close');
 	});
@@ -53,31 +91,17 @@ $(document).ready(function(){
 
 	//CARGA LOS DATOS
 	Consultar();
-
+	*/
 });
 
+
 /**
-* REALIZA CONSULTA
+* REFRESCA LOS DATOS
 */
 function Consultar(){
 	//si tiene datos los carga
-	if(localStorage.getItem("datos") === null){
-		//no hay datos, debe sincronizar
-		var error = '<div class="error"><p>No existen datos locales.</p>'+
-					'<p>Por favor realice una sincronizacion.</p></div>'+
-						'<fieldset class="ui-grid-a">'+
-							'<div class="ui-block-a" >'+
-								'<button type="button" class="cancelar-dialogo" >'+
-									'Cancel'+
-								'</button>'+
-							'</div>'+
-							'<div class="ui-block-b">'+
-								'<a type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
-									'Sincronizar'+
-								'</a>'+
-							'</div>'+   
-						'</fieldset>';
-		Error('Primera Sincrizacion', error);
+	if( window.localStorage.getItem("datos") === null ){
+		$.mobile.changePage('#sincronizar', {role:'dialog', transition: "slideup"});
 	}else{
 		//loader
 		$.mobile.showPageLoadingMsg();
@@ -107,8 +131,14 @@ function Sincronizar(){
 			return;
 		}
 	}
-	$.mobile.showPageLoadingMsg();
-
+	//$.mobile.showPageLoadingMsg();
+	$.mobile.loading( 'show', {
+		text: 'Por favor espere',
+		textVisible: true,
+		theme: 'z',
+		html: ""
+	});
+	
 	//link = 'js/testreservas.json';
 	var paramsRervas = {"username" : username, "password" : password, "action" : "reservas"};
 	$.ajax({
@@ -125,7 +155,7 @@ function Sincronizar(){
 			console.log('peticion reservas');
 		},
 		success: function(reservas){
-			localStorage['reservas'] = JSON.stringify(reservas);
+			window.localStorage.setItem( 'reservas', JSON.stringify(reservas) );
 			console.log('reservas listas');
 		},
 		fail: function(response){
@@ -176,8 +206,10 @@ function Sincronizar(){
         dataType: "json",
 		cache: false,
 		success: function(data){
+			console.log(data);
+
 			//GUARDA DATOS
-			localStorage['datos'] = JSON.stringify(data);
+			window.localStorage.setItem( 'datos', JSON.stringify(data) );
 			console.log('datos listos');
 
 			//actualiza la hora de la ultima sincronizacion
@@ -191,8 +223,8 @@ function Sincronizar(){
 				horas = horas ? horas : 12; 
 				minutos = minutos < 10 ? '0'+minutos : minutos;
 
-				localStorage['lastUpdate'] = date.getMonth()+1+"/"+date.getDate()+"/"+date.getFullYear()+" - "+horas+":"+minutos+ampm;
-
+				var ahora = date.getMonth()+1+"/"+date.getDate()+"/"+date.getFullYear()+" - "+horas+":"+minutos+ampm;
+				window.localStorage.setItem( "lastUpdate", ahora );
 			}
 
 			//CARGA LOS DATOS
@@ -280,7 +312,7 @@ function ValidaCredenciales(username, password){
 * datos -> object con los datos a cargar
 */
 function Cargar(){
-	datos = JSON.parse(localStorage['datos']);
+	datos = JSON.parse( window.localStorage.getItem('datos') );
 
 	//carga la datbla sin filtrar
 	$.each(datos.INFOUNIDAD, function(f, c){
@@ -343,7 +375,7 @@ function Cargar(){
 	//$("#resultados").table( "refresh" );
 	
 	//actualiza la ultima hora de sincronizacion
-	if(localStorage.getItem("lastUpdate") === null){
+	if( window.localStorage.getItem("lastUpdate") === null ){
 		$("#home-footer h3, #info-footer h3")
 			.hide()
 			.html("Sin Sincronizar")
@@ -351,7 +383,7 @@ function Cargar(){
 	}else{
 		$("#home-footer h3, #info-footer h3")
 			.hide()
-			.html("Ultima actualizacion: "+localStorage['lastUpdate'])
+			.html("Ultima actualizacion: "+ window.localStorage.getItem('lastUpdate') )
 			.fadeIn();
 	}
 	
@@ -374,19 +406,19 @@ function EliminarDuplicados(){
 		return tipos.indexOf(elem) == pos;
 	});
 	tipos.sort();
-	localStorage['tipos'] = JSON.stringify(tipos);
+	window.localStorage.setItem( 'tipos', JSON.stringify(tipos) );
 
 	asesores = asesores.filter(function(elem, pos) {
 		return asesores.indexOf(elem) == pos;
 	});
 	asesores.sort();
-	localStorage['asesores'] = JSON.stringify(asesores);
+	window.localStorage.setItem( 'asesores', JSON.stringify(asesores) );
 
 	sucursales = sucursales.filter(function(elem, pos) {
 		return sucursales.indexOf(elem) == pos;
 	});
 	sucursales.sort();
-	localStorage['sucursales'] = JSON.stringify(sucursales);
+	window.localStorage.setItem( 'sucursales', JSON.stringify(sucursales) );
 }
 
 /**
@@ -398,19 +430,19 @@ function Selects(){
 	$("#select-tipo").append('<option value="todos">Todos</option>');
 	$("#select-asesor").append('<option value="todos">Todos</option>');
 
-	tipos = JSON.parse(localStorage['tipos']);
+	tipos = JSON.parse( window.localStorage.getItem('tipos') );
 	$.each(tipos, function(f, valor){
 		var option = '<option value="'+valor+'">'+valor+'</option>';
 		$("#select-tipo").append(option);
 	});
 
-	asesores = JSON.parse(localStorage['asesores']);
+	asesores = JSON.parse( window.localStorage.getItem('asesores') );
 	$.each(asesores, function(f, valor){
 		var option = '<option value="'+valor+'">'+valor+'</option>';
 		$("#select-asesor").append(option);
 	});
 
-	sucursales = JSON.parse(localStorage['sucursales']);
+	sucursales = JSON.parse( window.localStorage.getItem('sucursales') );
 	$.each(sucursales, function(f, valor){
 		var option = '<option value="'+valor+'">'+valor+'</option>';
 		$("#select-sucursal").append(option);
@@ -493,7 +525,7 @@ function Tipos(){
 
 		//muestra todos los tipos
 		if( tipo == 'todos' ){
-			var tipos = localStorage['tipos'];
+			var tipos = window.localStorage.getItem('tipos');
 			$.mobile.showPageLoadingMsg();
 			
 			$.each(tipos, function(f, valor){
@@ -527,7 +559,7 @@ function Estados(){
 
 		//mustra todos los estados
 		if( estado == 'todos' ){
-			var estados = localStorage['estados'];
+			var estados = window.localStorage.getItem('estados');
 
 			$.mobile.showPageLoadingMsg();
 			$.each(estados, function(f, valor){
@@ -627,7 +659,7 @@ function Asesores(){
 
 		//muestra todos los tipos
 		if( asesor == 'todos' ){
-			var asesores = localStorage['asesores'];
+			var asesores = window.localStorage.getItem('asesores');
 			$.mobile.showPageLoadingMsg();
 			
 			$.each(asesores, function(f, valor){
@@ -661,7 +693,7 @@ function Sucursales(){
 
 		//muestra todos los tipos
 		if( sucursal == 'todos' ){
-			var sucursal = localStorage['sucursales'];
+			var sucursal = window.localStorage.getItem('sucursales');
 			$.mobile.showPageLoadingMsg();
 			
 			$.each(sucursal, function(f, valor){
@@ -727,24 +759,28 @@ function InfoPage(id){
 	//alert(id);
 	$.mobile.changePage('#info', { transition: "slide"} );
 
-	reservas = JSON.parse(localStorage['reservas']);
+	reservas = JSON.parse( window.localStorage.getItem('reservas') );
 
 	$.each(reservas.INFOUNIDAD, function(f, c){
 		if( c.UNIDAD === id ){
 			$("#reserva").html('<b class="ui-table-cell-label">Reserva</b>'+c.FECHA_RESERVACION).trigger('create').trigger('create');
 			$("#entrega").html('<b class="ui-table-cell-label">Entrega</b>'+c.FECHA_ENTREGA).trigger('create').trigger('create');
+			$("#dias-reserva").html('<b class="ui-table-cell-label">Días Reserva</b>'+c.FECHA_ENTREGA).trigger('create').trigger('create');
 			$("#cliente").html('<b class="ui-table-cell-label">Cliente</b>'+c.NOMBRE_CLIENTE).trigger('create').trigger('create');
 			$("#vendedor").html('<b class="ui-table-cell-label">Vendedor</b>'+c.NOMBRE_VENDEDOR).trigger('create').trigger('create');
+			$("#sucursal").html('<b class="ui-table-cell-label">Sucursal</b>'+c.SUCURSAL).trigger('create').trigger('create');
 		}
 	});
 
-	datos = JSON.parse(localStorage['datos']);
+	datos = JSON.parse( window.localStorage.getItem('datos') );
 
 	$.each(datos.INFOUNIDAD, function(f,c){
 		if( c.UNIDAD === id ){
 			$("#unidad").html('<b class="ui-table-cell-label">Unidad</b>'+c.UNIDAD).trigger('create').trigger('create');
+			$("#precio").html('<b class="ui-table-cell-label">Precio</b>'+c.PRECIO).trigger('create').trigger('create');
 			$('#tipo-vehiculo').html('<b class="ui-table-cell-label">Tipo Vehiculo</b>'+c.TIPO_VEHICULO).trigger('create');
 			$('#color').html('<b class="ui-table-cell-label">Color</b>'+c.DESC_COLOR_EXT).trigger('create');
+			$('#codigo-color').html('<b class="ui-table-cell-label">Código Color</b>'+c.COLOR_EXTERNO).trigger('create');
 			$('#ano-modelo').html('<b class="ui-table-cell-label">Año Modelo</b>'+c.MODELO).trigger('create');
 			$('#ubicacion').html('<b class="ui-table-cell-label">Ubicacion</b>'+c.DESC_UBICACION).trigger('create');
 			$('#fecha-llegada').html('<b class="ui-table-cell-label">Fecha Llegada</b>'+c.FECHA_LLEGADA).trigger('create');

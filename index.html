@@ -12,6 +12,7 @@
 	<script type="text/javascript" src="jq/jquery.mobile-1.3.0-rc.1.min.js"></script>
 	
 	<script src="js/main.js"></script>
+	<script src="js/sql.js"></script>
 </head>
 <body>
 
@@ -68,8 +69,9 @@
 					</select>
 				</div>
 			</div>
-			<!-- busqueda -->
+			<!-- busqueda
 			<input type="search" name="buscar" id="buscar" value="" data-mini="false" placeholder="Buscar" />
+			-->
 		</div>
 
 		<div data-role="content">
@@ -157,16 +159,18 @@
 
 	<!-- pagina de la info -->
 	<div data-role="page" data-add-back-btn="true" data-back-btn-text="Atras" id="info" >
-		<div data-role="header" >
-			<h1>Info</h1>
+		<div data-role="header" data-position="fixed" >
+			<h1>Detalle</h1>
 		</div>
 		<div data-role="content" >
 			<table id="table-info" data-role="table" data-filter="true" data-mode="reflow" class="ui-responsive">
 				<thead>
 					<tr>
 						<th>Unidad</th>
+						<th>Precio</th>
 						<th>Tipo Vehiculo</th>
 						<th>Color</th>
+						<th>Código Color</th>
 						<th>Año Modelo</th>
 						<th>Ubicacion</th>
 						<th>Fecha Llegada</th>
@@ -178,8 +182,10 @@
 				<tbody>
 					<tr>
 						<td id="unidad" ></td>
+						<td id="precio" ></td>
 						<td id="tipo-vehiculo" ></td>
 						<td id="color" ></td>
+						<td id="codigo-color" ></td>
 						<td id="ano-modelo" ></td>
 						<td id="ubicacion" ></td>
 						<td id="fecha-llegada" ></td>
@@ -195,16 +201,20 @@
 					<tr>
 						<th>Reserva</th>
 						<th>Entrega</th>
+						<th>Días Reserva</th>
 						<th>Cliente</th>
 						<th>Vendedor</th>
+						<th>Sucursal</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
 						<td id="reserva" ></td>
 						<td id="entrega" ></td>
+						<td id="dias-reserva" ></td>
 						<td id="cliente" ></td>
 						<td id="vendedor" ></td>
+						<td id="sucursal" ></td>
 					</tr>
 				</tbody>
 			</table>
@@ -235,6 +245,5 @@
 			</fieldset>
 		</div>
 	</div>
-
 </body>
 </html>
