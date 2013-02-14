@@ -11,6 +11,10 @@ var sucursales = [];
 var table = '';
 var reservas = [];
 
+//identificadores 
+var cargandoReservas = false;
+var cargandoDatos = false;
+
 /*************************** PHONEGAP **********************/
 
 //espera que cordova cargue
@@ -135,12 +139,12 @@ function Sincronizar(){
 	$.mobile.loading( 'show', {
 		text: 'Por favor espere',
 		textVisible: true,
-		theme: 'z',
+		theme: 'a',
 		html: ""
 	});
 	
 	//link = 'js/testreservas.json';
-	var paramsRervas = {"username" : username, "password" : password, "action" : "reservas"};
+	/*var paramsRervas = {"username" : username, "password" : password, "action" : "reservas"};
 	$.ajax({
 		url: link,
 		data: paramsRervas,
@@ -192,7 +196,7 @@ function Sincronizar(){
 						'</fieldset>';
 			Error('Error Sincronizar', error);
 		}
-	});
+	});*/
 
 	//link = 'js/testdata.json';
 	var paramsDatos = {"username" : username, "password" : password, "action" : "vehiculos"};
@@ -205,6 +209,10 @@ function Sincronizar(){
 		contentType: "application/json; charset=utf-8",
         dataType: "json",
 		cache: false,
+		beforeSend: function(){
+			cargandoDatos = true;
+			console.log('peticion datos');
+		},
 		success: function(data){
 			console.log(data);
 
@@ -271,14 +279,79 @@ function Sincronizar(){
 			Error('Error Sincronizar', error);
 		}
 	}).done(function(){
+		cargandoDatos = false;
+		
 		$.mobile.hidePageLoadingMsg();
 		$('.ui-dialog').dialog('close');
+		
+		//CARGA RESERVAS PASIVAMENTE
+		Reservas(username, password);
 	});
 }
 
-function Datos(datos){
-	console.log('datos obtenidos');
-	console.log(datos);
+/**
+* CARGAR LOS DATOS DE LAS RESERVAS
+*/
+function Reservas(username, password){
+	var paramsRervas = {"username" : username, "password" : password, "action" : "reservas"};
+	
+	$.ajax({
+		url: link,
+		data: paramsRervas,
+		type: 'get',
+		crossDomain: true,
+		//jsonpCallback : "Datos",
+		async: true,
+		contentType: "application/json; charset=utf-8",
+        dataType: "json",
+		cache: false,
+		beforeSend: function(){
+			console.log('peticion reservas');
+			cargandoReservas = true;
+		},
+		success: function(reservas){
+			window.localStorage.setItem( 'reservas', JSON.stringify(reservas) );
+			console.log('reservas listas');
+		},
+		fail: function(response){
+			cargandoReservas = false;
+			var error = '<h2>Ha ocurrido un error al incronizar las reservas</h2>'+
+						'<fieldset class="ui-grid-a">'+
+							'<div class="ui-block-a" >'+
+								'<button type="button" class="cancelar-dialogo" >'+
+									'Cancel'+
+								'</button>'+
+							'</div>'+
+							'<div class="ui-block-b">'+
+								'<a clas="reintentar" type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
+									'Re intentar'+
+								'</a>'+
+							'</div>'+   
+						'</fieldset>';
+			Error('Error Sincronizar', error);
+		},
+		error: function(response){
+			cargandoReservas = false;
+			var error = '<h2>Ha ocurrido un error al incronizar las reservas</h2>'+
+						'<h2>Error en ajax</h2>'+response+
+						'<fieldset class="ui-grid-a">'+
+							'<div class="ui-block-a" >'+
+								'<button type="button" class="cancelar-dialogo" >'+
+									'Cancel'+
+								'</button>'+
+							'</div>'+
+							'<div class="ui-block-b">'+
+								'<a clas="reintentar" type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
+									'Re intentar'+
+								'</a>'+
+							'</div>'+   
+						'</fieldset>';
+			Error('Error Sincronizar', error);
+		}
+	}).done(function(){
+		//termino de cargar las reservas
+		cargandoReservas = false;
+	});
 }
 
 /**
@@ -319,7 +392,9 @@ function Cargar(){
 		
 		var clase = c.TIPO_VEHICULO+' '+c.ESTADO+' ';
 		if( !jQuery.isEmptyObject(c.NOMBRE_VENDEDOR) ){
-			clase += c.NOMBRE_VENDEDOR+' ';
+			var vendedor = c.NOMBRE_VENDEDOR;
+			vendedor = vendedor.replace(/\s+/g, ''); //elimina espacios en blanco
+			clase += vendedor+' ';
 		}
 		if( !jQuery.isEmptyObject(c.SUCURSAL) ){
 			clase += c.SUCURSAL;
@@ -341,8 +416,10 @@ function Cargar(){
 		}else{
 			tr += c.FECHA_LLEGADA;
 		}
-			tr	+='</td>'+
+		
+		tr	+='</td>'+
 			'<td><b class="ui-table-cell-label">Cliente</b>';
+
 		if( jQuery.isEmptyObject(c.NOMBRE_CLIENTE) ){
 			tr += '---';
 		}else{
@@ -350,29 +427,37 @@ function Cargar(){
 		}
 		tr	+='</td>';
 
-		tr	+='<td><b class="ui-table-cell-label">Sucursal</b>';
 		//sucursal
+		tr	+='<td><b class="ui-table-cell-label">Sucursal</b>';
 		if( jQuery.isEmptyObject(c.SUCURSAL) ){
 			tr += '---';
 		}else{
 			tr += c.SUCURSAL;
+
+			//array para las sucursales
 			sucursales.push(c.SUCURSAL);
 		}
-			tr	+='</td>'+
-				'</tr>';
+			tr += '</td>';
+
+		//dias reserva
+		if( !jQuery.isEmptyObject(c.DIAS_RESERVA) ){
+			tr +='<td><b class="ui-table-cell-label">Días Reserva</b>'+c.DIAS_RESERVA+'</td>';
+		}else{
+			tr +='<td><b class="ui-table-cell-label">Días Reserva</b>---</td>';
+		}
+
+		tr +=	'</tr>';
 				
-			table += tr;
+		table += tr;
 
 		tipos.push(c.TIPO_VEHICULO);
 		if( !jQuery.isEmptyObject(c.NOMBRE_VENDEDOR) ){
 			asesores.push(c.NOMBRE_VENDEDOR);
 		}
-		//sucursales.push(c.SUCURSAL);
 	});
 	
 	$("#resultados tbody").html('');
 	$("#resultados tbody").append(table).trigger('create');
-	//$("#resultados").table( "refresh" );
 	
 	//actualiza la ultima hora de sincronizacion
 	if( window.localStorage.getItem("lastUpdate") === null ){
@@ -521,32 +606,7 @@ function Buscar(){
 */
 function Tipos(){
 	$("#select-tipo").change(function(){
-		var tipo = $(this).find("option:selected").val();
-
-		//muestra todos los tipos
-		if( tipo == 'todos' ){
-			var tipos = window.localStorage.getItem('tipos');
-			$.mobile.showPageLoadingMsg();
-			
-			$.each(tipos, function(f, valor){
-				$("."+valor).show();
-			});
-
-			$.mobile.hidePageLoadingMsg();
-			return;
-		}
-
-		$.mobile.showPageLoadingMsg();
-		$("#resultados tbody tr").each(function(){
-			if( $(this).hasClass(tipo) ){
-				$(this).show();
-			}else{
-				if( $(this).is(":visible") ){
-					$(this).hide();
-				}
-			}
-		});
-		$.mobile.hidePageLoadingMsg();
+		Filtrar();
 	});
 }
 
@@ -555,97 +615,7 @@ function Tipos(){
 */
 function Estados(){
 	$("#select-estado").change(function(){
-		var estado = $(this).find("option:selected").val();
-
-		//mustra todos los estados
-		if( estado == 'todos' ){
-			var estados = window.localStorage.getItem('estados');
-
-			$.mobile.showPageLoadingMsg();
-			$.each(estados, function(f, valor){
-				$("."+valor).show();
-			});
-			$.mobile.hidePageLoadingMsg();
-		}
-
-		if( estado == 'disponible'){
-			$.mobile.showPageLoadingMsg();
-			$("#resultados tbody tr").each(function(){
-				if( $(this).hasClass('S') || $(this).hasClass('ST') || $(this).hasClass('L') || $(this).hasClass('T')){
-					$(this).show();
-				}else{
-					if( $(this).is(":visible") ){
-						$(this).hide();
-					}
-				}
-			});
-			$.mobile.hidePageLoadingMsg();
-		}
-		if( estado == 'disponibleInventario'){
-			$.mobile.showPageLoadingMsg();
-			$("#resultados tbody tr").each(function(){
-				if( $(this).hasClass('S') || $(this).hasClass('L') ){
-					$(this).show();
-				}else{
-					if( $(this).is(":visible") ){
-						$(this).hide();
-					}
-				}
-			});
-			$.mobile.hidePageLoadingMsg();
-		}
-		if( estado == 'libre'){
-			$.mobile.showPageLoadingMsg();
-			$("#resultados tbody tr").each(function(){
-				if( $(this).hasClass('L') || $(this).hasClass('T') ){
-					$(this).show();
-				}else{
-					if( $(this).is(":visible") ){
-						$(this).hide();
-					}
-				}
-			});
-			$.mobile.hidePageLoadingMsg();
-		}
-		if(estado == 'libreInventario'){
-			$.mobile.showPageLoadingMsg();
-			$("#resultados tbody tr").each(function(){
-				if( $(this).hasClass('L') ){
-					$(this).show();
-				}else{
-					if( $(this).is(":visible") ){
-						$(this).hide();
-					}
-				}
-			});
-			$.mobile.hidePageLoadingMsg();
-		}
-		if( estado == 'separado'){
-			$.mobile.showPageLoadingMsg();
-			$("#resultados tbody tr").each(function(){
-				if( $(this).hasClass('S') || $(this).hasClass('ST') ){
-					$(this).show();
-				}else{
-					if( $(this).is(":visible") ){
-						$(this).hide();
-					}
-				}
-			});
-			$.mobile.hidePageLoadingMsg();
-		}
-		if( estado == 'separadoInventario'){
-			$.mobile.showPageLoadingMsg();
-			$("#resultados tbody tr").each(function(){
-				if( $(this).hasClass('S') ){
-					$(this).show();
-				}else{
-					if( $(this).is(":visible") ){
-						$(this).hide();
-					}
-				}
-			});
-			$.mobile.hidePageLoadingMsg();
-		}
+		Filtrar();
 	});
 }
 
@@ -654,33 +624,7 @@ function Estados(){
 */
 function Asesores(){
 	$("#select-asesor").change(function(){
-		var asesor = $(this).find("option:selected").val();
-		alert(asesor);
-
-		//muestra todos los tipos
-		if( asesor == 'todos' ){
-			var asesores = window.localStorage.getItem('asesores');
-			$.mobile.showPageLoadingMsg();
-			
-			$.each(asesores, function(f, valor){
-				$("."+valor).show();
-			});
-
-			$.mobile.hidePageLoadingMsg();
-			return;
-		}
-
-		$.mobile.showPageLoadingMsg();
-		$("#resultados tbody tr").each(function(){
-			if( $(this).hasClass(asesor) ){
-				$(this).show();
-			}else{
-				if( $(this).is(":visible") ){
-					$(this).hide();
-				}
-			}
-		});
-		$.mobile.hidePageLoadingMsg();
+		Filtrar();
 	});
 }
 
@@ -689,62 +633,86 @@ function Asesores(){
 */
 function Sucursales(){
 	$("#select-sucursal").change(function(){
-		var sucursal = $(this).find("option:selected").val();
-
-		//muestra todos los tipos
-		if( sucursal == 'todos' ){
-			var sucursal = window.localStorage.getItem('sucursales');
-			$.mobile.showPageLoadingMsg();
-			
-			$.each(sucursal, function(f, valor){
-				$("."+valor).show();
-			});
-
-			$.mobile.hidePageLoadingMsg();
-			return;
-		}
-
-		$.mobile.showPageLoadingMsg();
-		$("#resultados tbody tr").each(function(){
-			if( $(this).hasClass(sucursal) ){
-				$(this).show();
-			}else{
-				if( $(this).is(":visible") ){
-					$(this).hide();
-				}
-			}
-		});
-		$.mobile.hidePageLoadingMsg();
-		
-		/*var opciones = [];
-		opciones.push = $(this).find("option:selected").val();
-		opciones.push = $("#select-asesor").find("option:selected").val();
-		opciones.push = $("#select-tipo").find("option:selected").val();
-		opciones.push = $("#select-estado").find("option:selected").val();
-		Filtrar(opciones)*/
+		Filtrar();
 	});
 }
 
 /**
-* FILTRA CON LAS OPCIONES SELECCIONADAS
+* FILTRA SELECCIONES
 */
-function Filtrar(opciones){
+function Filtrar(){
 	$.mobile.showPageLoadingMsg();
-	$("#resultados tbody tr").each(function(){
-		var element = $(this);
-		
-		$.each(opciones, function(f, opcion){
-			if( element.hasClass(opcion) ){
-				element.addClass('si');
-				element.show();
-			}else{
-				if( !element.hasClass('si') ){
-					element.hide();
-				}
-			}
-		});
-			
-	});
+	
+	var select = '';
+
+	var tipo = $("#select-tipo").find("option:selected").val();
+	var estado = $("#select-estado").find("option:selected").val();
+	var asesor = $("#select-asesor").find("option:selected").val();
+	asesor = asesor.replace(/\s+/g, ''); //elimina espacios blancos
+	var sucursal = $("#select-sucursal").find("option:selected").val();
+
+	switch (estado){
+		case 'disponible':
+			select += '.S.ST.L.T';
+			break;
+
+		case 'disponibleInventario':
+			select += '.S.L';
+			break;
+
+		case 'libre':
+			select += '.L.T';
+			break;
+
+		case 'libreInventario':
+			select += '.L';
+			break;
+
+		case 'separado':
+			select += '.S.ST';
+			break;
+
+		case 'separadoInventario':
+			select += '.S.ST';
+			break;
+	}
+
+	if( tipo != 'todos' ){
+		select += '.'+tipo;
+	}else{
+		/*tipos = JSON.parse( window.localStorage.getItem('tipos') );
+		$.each(tipos, function(f,c){
+			select += '.'+c;
+		});*/
+		$("#resultados tbody tr").show();
+	}
+	if( asesor != 'todos' ){
+		select += '.'+asesor;
+	}else{
+		/*asesores = JSON.parse( window.localStorage.getItem('asesores') );
+		$.each(asesores, function(f,c){
+			select += '.'+c;
+		});*/
+		$("#resultados tbody tr").show();
+	}
+	if( sucursal != 'todos'){
+		select += '.'+sucursal;
+	}else{
+		/*sucursales = JSON.parse( window.localStorage.getItem('sucursales') );
+		$.each(sucursales, function(f,c){
+			select += '.'+c;
+		});*/
+		$("#resultados tbody tr").show();
+	}
+
+	alert(select);
+
+	if( select != '' ){
+		//esconde todos
+		$("#resultados tbody tr").hide();
+		$(select).show();
+	}
+
 	$.mobile.hidePageLoadingMsg();
 }
 
@@ -755,43 +723,52 @@ function Filtrar(opciones){
 * id -> id de la info
 */
 function InfoPage(id){
-	//var datos = resultados.id;
-	//alert(id);
-	$.mobile.changePage('#info', { transition: "slide"} );
 
-	reservas = JSON.parse( window.localStorage.getItem('reservas') );
+	if( window.localStorage.getItem('reservas') === null ){
 
-	$.each(reservas.INFOUNIDAD, function(f, c){
-		if( c.UNIDAD === id ){
-			$("#reserva").html('<b class="ui-table-cell-label">Reserva</b>'+c.FECHA_RESERVACION).trigger('create').trigger('create');
-			$("#entrega").html('<b class="ui-table-cell-label">Entrega</b>'+c.FECHA_ENTREGA).trigger('create').trigger('create');
-			$("#dias-reserva").html('<b class="ui-table-cell-label">Días Reserva</b>'+c.FECHA_ENTREGA).trigger('create').trigger('create');
-			$("#cliente").html('<b class="ui-table-cell-label">Cliente</b>'+c.NOMBRE_CLIENTE).trigger('create').trigger('create');
-			$("#vendedor").html('<b class="ui-table-cell-label">Vendedor</b>'+c.NOMBRE_VENDEDOR).trigger('create').trigger('create');
-			$("#sucursal").html('<b class="ui-table-cell-label">Sucursal</b>'+c.SUCURSAL).trigger('create').trigger('create');
-		}
-	});
+		$.mobile.changePage('#info', { transition: "slide"} );
 
-	datos = JSON.parse( window.localStorage.getItem('datos') );
 
-	$.each(datos.INFOUNIDAD, function(f,c){
-		if( c.UNIDAD === id ){
-			$("#unidad").html('<b class="ui-table-cell-label">Unidad</b>'+c.UNIDAD).trigger('create').trigger('create');
-			$("#precio").html('<b class="ui-table-cell-label">Precio</b>'+c.PRECIO).trigger('create').trigger('create');
-			$('#tipo-vehiculo').html('<b class="ui-table-cell-label">Tipo Vehiculo</b>'+c.TIPO_VEHICULO).trigger('create');
-			$('#color').html('<b class="ui-table-cell-label">Color</b>'+c.DESC_COLOR_EXT).trigger('create');
-			$('#codigo-color').html('<b class="ui-table-cell-label">Código Color</b>'+c.COLOR_EXTERNO).trigger('create');
-			$('#ano-modelo').html('<b class="ui-table-cell-label">Año Modelo</b>'+c.MODELO).trigger('create');
-			$('#ubicacion').html('<b class="ui-table-cell-label">Ubicacion</b>'+c.DESC_UBICACION).trigger('create');
-			$('#fecha-llegada').html('<b class="ui-table-cell-label">Fecha Llegada</b>'+c.FECHA_LLEGADA).trigger('create');
-			$('#equipamiento').html('<b class="ui-table-cell-label">Equipamiento</b>'+c.EQUIPAMIENTO).trigger('create');
-			$('#extras-instaladas').html('<b class="ui-table-cell-label">Extras Instaladas</b>'+c.EXTRAS_INSTALADAS).trigger('create');
-			
-			if( !jQuery.isEmptyObject(c.NOTAS) ){
-				$('#notas').html('<b class="ui-table-cell-label">Notas</b>'+c.NOTAS).trigger('create');
+		reservas = JSON.parse( window.localStorage.getItem('reservas') );
+
+		$.each(reservas.INFOUNIDAD, function(f, c){
+			if( c.UNIDAD === id ){
+				$("#reserva").html('<b class="ui-table-cell-label">Reserva</b>'+c.FECHA_RESERVACION).trigger('create').trigger('create');
+				$("#entrega").html('<b class="ui-table-cell-label">Entrega</b>'+c.FECHA_ENTREGA).trigger('create').trigger('create');
+				$("#cliente").html('<b class="ui-table-cell-label">Cliente</b>'+c.NOMBRE_CLIENTE).trigger('create').trigger('create');
+				$("#vendedor").html('<b class="ui-table-cell-label">Vendedor</b>'+c.NOMBRE_VENDEDOR).trigger('create').trigger('create');
+				$("#sucursal").html('<b class="ui-table-cell-label">Sucursal</b>'+c.SUCURSAL).trigger('create').trigger('create');
 			}
+		});
+
+		datos = JSON.parse( window.localStorage.getItem('datos') );
+
+		$.each(datos.INFOUNIDAD, function(f,c){
+			if( c.UNIDAD === id ){
+				$("#dias-reserva").html('<b class="ui-table-cell-label">Días Reserva</b>'+c.DIAS_RESERVA).trigger('create').trigger('create');
+
+				$("#unidad").html('<b class="ui-table-cell-label">Unidad</b>'+c.UNIDAD).trigger('create').trigger('create');
+				$("#precio").html('<b class="ui-table-cell-label">Precio</b>'+c.PRECIO).trigger('create').trigger('create');
+				$('#tipo-vehiculo').html('<b class="ui-table-cell-label">Tipo Vehiculo</b>'+c.TIPO_VEHICULO).trigger('create');
+				$('#color').html('<b class="ui-table-cell-label">Color</b>'+c.DESC_COLOR_EXT).trigger('create');
+				$('#codigo-color').html('<b class="ui-table-cell-label">Código Color</b>'+c.COLOR_EXTERNO).trigger('create');
+				$('#ano-modelo').html('<b class="ui-table-cell-label">Año Modelo</b>'+c.MODELO).trigger('create');
+				$('#ubicacion').html('<b class="ui-table-cell-label">Ubicacion</b>'+c.DESC_UBICACION).trigger('create');
+				$('#fecha-llegada').html('<b class="ui-table-cell-label">Fecha Llegada</b>'+c.FECHA_LLEGADA).trigger('create');
+				$('#equipamiento').html('<b class="ui-table-cell-label">Equipamiento</b>'+c.EQUIPAMIENTO).trigger('create');
+				$('#extras-instaladas').html('<b class="ui-table-cell-label">Extras Instaladas</b>'+c.EXTRAS_INSTALADAS).trigger('create');
+				
+				if( !jQuery.isEmptyObject(c.NOTAS) ){
+					$('#notas').html('<b class="ui-table-cell-label">Notas</b>'+c.NOTAS).trigger('create');
+				}
+			}
+		});
+	
+	}else{
+		if(cargandoReservas){
+			alert('Aun se estan cargando los datos para las reservas.');
 		}
-	});
+	}
 }
 
 /************************* HELPES *******************/
