@@ -1,7 +1,7 @@
 <html>
 <head>
 	<title>Ipurdy</title>
-	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" /> 
 	<meta name="viewport" content="width=device-width, initial-scale=1"> 
 
 	<link rel="stylesheet" type="text/css" href="css/style.css">
@@ -18,7 +18,7 @@
 </head>
 <body>
 
-	<div data-role="page" id="home" data-title="Ipurdy" >
+	<div data-role="page" id="home" data-title="Ipurdy">
 
 		<div data-role="header" data-position="fixed">
 			<div data-role="navbar" data-id="navbar" data-fullscreen="true" >
@@ -52,7 +52,7 @@
 						<option value="disponibleInventario">Disponible en Inventario</option>
 						<option value="libre">Libre</option>
 						<option value="libreInventario">Libre en Inventario</option>
-						<option value="separadoSeparado">Separado</option>
+						<option value="separado">Separado</option>
 						<option value="separadoInventario">Separado en Inventario</option>
 					</select>
 				</div>
@@ -127,12 +127,15 @@
 					</tr>-->
 				</tbody>
 			</table>
-
+			<div id="no-resultados">
+				No hay resultados
+			</div>
 		</div>
 
 		<div data-role="footer" id="home-footer" data-position="fixed">
 			<h3></h3>
 		</div>
+
 	</div>
 	<!-- home page -->
 

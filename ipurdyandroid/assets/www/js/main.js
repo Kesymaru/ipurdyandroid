@@ -67,35 +67,6 @@ $(document).bind('mobileinit',function(){
 
 $(document).ready(function(){
 	onDeviceReady();
-	/*
-	$('.cancelar-dialogo').click(function(){
-		$('.ui-dialog').dialog('close');
-	});
-
-	$("#resultados tr").each(function(){
-		$(this).click(function(){
-			InfoPage($(this).attr('id'));
-		});
-	});
-
-	$("#consultar").click(function(){
-		Consultar();
-	});
-
-	$("#sincronizar-boton").click(function(){
-		Sincronizar();
-	});
-	
-	//FILTROS
-	Buscar();
-	Tipos();
-	Estados();
-	Asesores();
-	Sucursales();
-
-	//CARGA LOS DATOS
-	Consultar();
-	*/
 });
 
 
@@ -143,61 +114,6 @@ function Sincronizar(){
 		html: ""
 	});
 	
-	//link = 'js/testreservas.json';
-	/*var paramsRervas = {"username" : username, "password" : password, "action" : "reservas"};
-	$.ajax({
-		url: link,
-		data: paramsRervas,
-		type: 'get',
-		crossDomain: true,
-		//jsonpCallback : "Datos",
-		async: true,
-		contentType: "application/json; charset=utf-8",
-        dataType: "json",
-		cache: false,
-		beforeSend: function(){
-			console.log('peticion reservas');
-		},
-		success: function(reservas){
-			window.localStorage.setItem( 'reservas', JSON.stringify(reservas) );
-			console.log('reservas listas');
-		},
-		fail: function(response){
-			var error = '<h2>Ha ocurrido un error al incronizar las reservas</h2>'+
-						'<fieldset class="ui-grid-a">'+
-							'<div class="ui-block-a" >'+
-								'<button type="button" class="cancelar-dialogo" >'+
-									'Cancel'+
-								'</button>'+
-							'</div>'+
-							'<div class="ui-block-b">'+
-								'<a clas="reintentar" type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
-									'Re intentar'+
-								'</a>'+
-							'</div>'+   
-						'</fieldset>';
-			Error('Error Sincronizar', error);
-		},
-		error: function(response){
-			console.log(response);
-			var error = '<h2>Ha ocurrido un error al incronizar las reservas</h2>'+
-						'<h2>Error en ajax</h2>'+response+
-						'<fieldset class="ui-grid-a">'+
-							'<div class="ui-block-a" >'+
-								'<button type="button" class="cancelar-dialogo" >'+
-									'Cancel'+
-								'</button>'+
-							'</div>'+
-							'<div class="ui-block-b">'+
-								'<a clas="reintentar" type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
-									'Re intentar'+
-								'</a>'+
-							'</div>'+   
-						'</fieldset>';
-			Error('Error Sincronizar', error);
-		}
-	});*/
-
 	//link = 'js/testdata.json';
 	var paramsDatos = {"username" : username, "password" : password, "action" : "vehiculos"};
 	$.ajax({
@@ -208,7 +124,7 @@ function Sincronizar(){
 	    async: true,
 		contentType: "application/json; charset=utf-8",
         dataType: "json",
-		cache: false,
+		cache: true,
 		beforeSend: function(){
 			cargandoDatos = true;
 			console.log('peticion datos');
@@ -243,9 +159,13 @@ function Sincronizar(){
 
 			//compone los selects
 			Selects();
+
+			cargandoDatos = false;
 		},
 		fail: function(response){
-			var error = '<h2>Ha ocurrido un error al incronizar</h2>'+
+			cargandoDatos = false;
+			var error = '<h2>La sincronizacion de los datos ha fallado.</h2>'+
+						'<h2>Por favor asegúrese de tener una conexion a internet</h2>'+
 						'<fieldset class="ui-grid-a">'+
 							'<div class="ui-block-a" >'+
 								'<button type="button" class="cancelar-dialogo" >'+
@@ -258,12 +178,11 @@ function Sincronizar(){
 								'</a>'+
 							'</div>'+   
 						'</fieldset>';
-			Error('Error Sincronizar', error);
+			Error(error, 'Error Sincronizar');
 		},
-		error: function(response){
-			console.log(response);
-			var error = '<h2>Ha ocurrido un error al sincronizar los datos</h2>'+
-						'<h2>Error en ajax</h2>'+
+		error: function(){
+			cargandoDatos = false;
+			var error = '<h2>Ha ocurrido un error al sincronizar los datos.</h2>'+
 						'<fieldset class="ui-grid-a">'+
 							'<div class="ui-block-a" >'+
 								'<button type="button" class="cancelar-dialogo" >'+
@@ -276,7 +195,7 @@ function Sincronizar(){
 								'</a>'+
 							'</div>'+   
 						'</fieldset>';
-			Error('Error Sincronizar', error);
+			Error(error, 'Error Sincronizar');
 		}
 	}).done(function(){
 		cargandoDatos = false;
@@ -300,11 +219,10 @@ function Reservas(username, password){
 		data: paramsRervas,
 		type: 'get',
 		crossDomain: true,
-		//jsonpCallback : "Datos",
 		async: true,
 		contentType: "application/json; charset=utf-8",
         dataType: "json",
-		cache: false,
+		cache: true,
 		beforeSend: function(){
 			console.log('peticion reservas');
 			cargandoReservas = true;
@@ -315,7 +233,8 @@ function Reservas(username, password){
 		},
 		fail: function(response){
 			cargandoReservas = false;
-			var error = '<h2>Ha ocurrido un error al incronizar las reservas</h2>'+
+			var error = '<h2>La sincronizacion de las reservas ha fallado.</h2>'+
+						'<h2>Por favor asegúrese de tener una conexion a internet</h2>'+
 						'<fieldset class="ui-grid-a">'+
 							'<div class="ui-block-a" >'+
 								'<button type="button" class="cancelar-dialogo" >'+
@@ -328,12 +247,11 @@ function Reservas(username, password){
 								'</a>'+
 							'</div>'+   
 						'</fieldset>';
-			Error('Error Sincronizar', error);
+			Error(error, 'Error Reservas');
 		},
-		error: function(response){
+		error: function(){
 			cargandoReservas = false;
-			var error = '<h2>Ha ocurrido un error al incronizar las reservas</h2>'+
-						'<h2>Error en ajax</h2>'+response+
+			var error = '<h2>Ha ocurrido un error al sincronizar las reservas.</h2>'+
 						'<fieldset class="ui-grid-a">'+
 							'<div class="ui-block-a" >'+
 								'<button type="button" class="cancelar-dialogo" >'+
@@ -346,7 +264,7 @@ function Reservas(username, password){
 								'</a>'+
 							'</div>'+   
 						'</fieldset>';
-			Error('Error Sincronizar', error);
+			Error(error,'Error Reservas');
 		}
 	}).done(function(){
 		//termino de cargar las reservas
@@ -451,25 +369,20 @@ function Cargar(){
 		table += tr;
 
 		tipos.push(c.TIPO_VEHICULO);
+		
 		if( !jQuery.isEmptyObject(c.NOMBRE_VENDEDOR) ){
 			asesores.push(c.NOMBRE_VENDEDOR);
 		}
 	});
 	
-	$("#resultados tbody").html('');
-	$("#resultados tbody").append(table).trigger('create');
+	//$("#resultados tbody").html('');
+	$("#resultados tbody").html(table).trigger('create');
 	
 	//actualiza la ultima hora de sincronizacion
 	if( window.localStorage.getItem("lastUpdate") === null ){
-		$("#home-footer h3, #info-footer h3")
-			.hide()
-			.html("Sin Sincronizar")
-			.fadeIn();
+		$("#home-footer h3, #info-footer h3").html("Sin Sincronizar");
 	}else{
-		$("#home-footer h3, #info-footer h3")
-			.hide()
-			.html("Ultima actualizacion: "+ window.localStorage.getItem('lastUpdate') )
-			.fadeIn();
+		$("#home-footer h3, #info-footer h3").html("Ultima actualizacion: "+ window.localStorage.getItem('lastUpdate') );
 	}
 	
 	//funciones de la tabla
@@ -512,8 +425,9 @@ function EliminarDuplicados(){
 */
 function Selects(){
 	//defaults
-	$("#select-tipo").append('<option value="todos">Todos</option>');
-	$("#select-asesor").append('<option value="todos">Todos</option>');
+	$("#select-tipo").append('<option value="todos" selected>Todos</option>');
+	$("#select-asesor").append('<option value="todos" selected>Todos</option>');
+	$("#select-sucursal").append('<option value="todos" selected>Todos</option>');
 
 	tipos = JSON.parse( window.localStorage.getItem('tipos') );
 	$.each(tipos, function(f, valor){
@@ -532,6 +446,9 @@ function Selects(){
 		var option = '<option value="'+valor+'">'+valor+'</option>';
 		$("#select-sucursal").append(option);
 	});
+
+	//refresca
+	$("#select-tipo, #select-asesor, #select-sucursal").selectmenu('refresh', true);
 }
 
 /************************* FILTROS ******************/
@@ -638,79 +555,101 @@ function Sucursales(){
 }
 
 /**
-* FILTRA SELECCIONES
+* FILTRA SELECCIONES SIN USAR LOOPS
 */
 function Filtrar(){
 	$.mobile.showPageLoadingMsg();
 	
-	var select = '';
-
-	var tipo = $("#select-tipo").find("option:selected").val();
-	var estado = $("#select-estado").find("option:selected").val();
-	var asesor = $("#select-asesor").find("option:selected").val();
-	asesor = asesor.replace(/\s+/g, ''); //elimina espacios blancos
-	var sucursal = $("#select-sucursal").find("option:selected").val();
-
-	switch (estado){
-		case 'disponible':
-			select += '.S.ST.L.T';
-			break;
-
-		case 'disponibleInventario':
-			select += '.S.L';
-			break;
-
-		case 'libre':
-			select += '.L.T';
-			break;
-
-		case 'libreInventario':
-			select += '.L';
-			break;
-
-		case 'separado':
-			select += '.S.ST';
-			break;
-
-		case 'separadoInventario':
-			select += '.S.ST';
-			break;
+	if($('#no-resultados').is(":visible")){
+		$('#no-resultados').css('display','none');		
 	}
 
+	var select = '';
+	var mostrado = false;
+
+	var tipo = $("#select-tipo option:selected").val();
+	var estado = $("#select-estado option:selected").val();
+	var asesor = $("#select-asesor option:selected").val();
+	asesor = asesor.replace(/\s+/g, ''); //elimina espacios blancos
+	var sucursal = $("#select-sucursal option:selected").val();
+	
+	//compone el selector para el filtro	
 	if( tipo != 'todos' ){
 		select += '.'+tipo;
-	}else{
-		/*tipos = JSON.parse( window.localStorage.getItem('tipos') );
-		$.each(tipos, function(f,c){
-			select += '.'+c;
-		});*/
-		$("#resultados tbody tr").show();
+	}else if(!mostrado){
+		$("#resultados tbody tr").css('display','table-row');
+		mostrado = true;
 	}
 	if( asesor != 'todos' ){
 		select += '.'+asesor;
-	}else{
-		/*asesores = JSON.parse( window.localStorage.getItem('asesores') );
-		$.each(asesores, function(f,c){
-			select += '.'+c;
-		});*/
-		$("#resultados tbody tr").show();
+	}else if(!mostrado){
+		$("#resultados tbody tr").css('display','table-row');
+		mostrado = true;
 	}
 	if( sucursal != 'todos'){
 		select += '.'+sucursal;
-	}else{
-		/*sucursales = JSON.parse( window.localStorage.getItem('sucursales') );
-		$.each(sucursales, function(f,c){
-			select += '.'+c;
-		});*/
-		$("#resultados tbody tr").show();
+	}else if(!mostrado){
+		$("#resultados tbody tr").css('display','table-row');
+		mostrado = true;
+	}
+	
+	var superSelect = '';
+
+	//compone seleccion con los estados
+	switch (estado){
+		case 'disponible':
+			superSelect += '.S' +select+', ';
+			superSelect += '.ST'+select+', ';
+			superSelect += '.L'+select+', ';
+			superSelect += '.T'+select;
+			break;
+
+		case 'disponibleInventario':
+			superSelect += '.S' +select+', ';
+			superSelect += '.L'+select;
+			break;
+
+		case 'libre':
+			superSelect += '.L'+select+', ';
+			superSelect += '.T'+select;
+			break;
+
+		case 'libreInventario':
+			superSelect += '.L'+select;
+			break;
+
+		case 'separado':
+			superSelect += '.S' +select+', ';
+			superSelect += '.ST'+select;
+			break;
+
+		case 'separadoInventario':
+			superSelect += '.S' +select;
+			break;
+
+		case 'todos':
+			superSelect = select;
+			if(!mostrado){
+				$("#resultados tbody tr").css('display','table-row');
+				mostrado = true;
+			}
+			break;
 	}
 
-	alert(select);
-
-	if( select != '' ){
+	if( superSelect != '' ){
 		//esconde todos
-		$("#resultados tbody tr").hide();
-		$(select).show();
+		$("#resultados tbody tr").css('display','none');
+		
+		console.log(superSelect);
+		
+		var ac = $(superSelect);
+		ac.css('display','table-row');
+		//$("'"+superSelect+"'").css('display','table-row');
+	}
+
+	//si hay resultados
+	if( !$("#resultados tbody tr").is(":visible") ){
+		$('#no-resultados').css('display','block');
 	}
 
 	$.mobile.hidePageLoadingMsg();
@@ -724,7 +663,7 @@ function Filtrar(){
 */
 function InfoPage(id){
 
-	if( window.localStorage.getItem('reservas') === null ){
+	if( window.localStorage.getItem('reservas') != null ){
 
 		$.mobile.changePage('#info', { transition: "slide"} );
 
@@ -766,7 +705,9 @@ function InfoPage(id){
 	
 	}else{
 		if(cargandoReservas){
-			alert('Aun se estan cargando los datos para las reservas.');
+			alert('Por favor espere..');
+		}else{
+			alert('Error: datos de reservas no disponible.');
 		}
 	}
 }
@@ -776,9 +717,12 @@ function InfoPage(id){
 /**
 * MUESTRA UN MENSAJE DE ERROR GENERICO
 */
-function Error(title, content){
+function Error(error, title){
+	if(title === null || title == ''){
+		title = 'Error';
+	}
 	$("#error div[data-role='header'] h1").html(title).trigger( "create" );
-	$("#error div[data-role='content']").html(content).trigger( "create" );
+	$("#error div[data-role='content']").html(error).trigger( "create" );
 	
 	$.mobile.changePage('#error', {role:'dialog'});
 
