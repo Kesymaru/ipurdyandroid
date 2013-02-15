@@ -20,15 +20,15 @@
 
 	<div data-role="page" id="home" data-title="Ipurdy">
 
-		<div data-role="header" data-position="fixed">
-			<div data-role="navbar" data-id="navbar" data-fullscreen="true" >
+		<div data-role="header">
+			<div data-role="navbar" data-mini="false" data-id="navbar" data-fullscreen="true" data-grid="a" >
 				<ul>
 					<li>
-						<a href="#home" id="consultar" >Consultar</a>
+						<a id="consultar" data-icon="custom" data-iconpos="bottom" data-iconpos="center" >Consultar</a>
 					</li>
 					
 					<li>
-						<a href="#sincronizar" data-rel="dialog" data-transition="slideup" >Sincronizar</a>
+						<a href="#sincronizar" data-rel="dialog" data-transition="slideup" data-icon="custom" data-iconpos="bottom" data-iconpos="center" >Sincronizar</a>
 					</li>
 				</ul>
 			</div>
@@ -39,14 +39,14 @@
 					<label for="select-tipo" class="select-label">
 						Tipo
 					</label>
-					<select data-mini="true" name="select-tipo" id="select-tipo">
+					<select data-mini="false" name="select-tipo" id="select-tipo">
 					</select>
 				</div>
 				<div class="ui-block-b">
 					<label for="select-estado" class="select-label">
 						Estado
 					</label>
-					<select data-mini="true" name="select-estado" id="select-estado">
+					<select data-mini="false" name="select-estado" id="select-estado">
 						<option value="todos">Todos</option>
 						<option value="disponible">Disponible</option>
 						<option value="disponibleInventario">Disponible en Inventario</option>
@@ -60,14 +60,14 @@
 					<label for="select-asesor" class="select-label">
 						Asesor
 					</label>
-					<select data-mini="true" name="select-asesor" id="select-asesor">
+					<select data-mini="false" name="select-asesor" id="select-asesor">
 					</select>
 				</div>
 				<div class="ui-block-d">
 					<label for="select-sucursal" class="select-label">
 						Sucursal
 					</label>
-					<select data-mini="true" name="select-sucursal" id="select-sucursal">
+					<select data-mini="false" name="select-sucursal" id="select-sucursal">
 					</select>
 				</div>
 			</div>
@@ -132,7 +132,7 @@
 			</div>
 		</div>
 
-		<div data-role="footer" id="home-footer" data-position="fixed">
+		<div data-role="footer" id="home-footer">
 			<h3></h3>
 		</div>
 
