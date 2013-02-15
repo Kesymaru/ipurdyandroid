@@ -21,6 +21,28 @@ $.extend( Cargar.prototype, {
    init: function() {
    },
 
+   Comfirmar: function(){
+   		notifica.Confirmacion('Desear Re cargar los datos', 'Re cargar', 'Si,No', cargar.Confirmado );
+   },
+
+   Confirmado: function(button){
+   		alert('selecciono '+button);
+   		
+   		if(button == 2){
+   			//recarga datos
+   			$.mobile.loading( 'show', {
+				text: 'Filtrando',
+				textVisible: true,
+				theme: 'a',
+				html: ""
+			});
+
+   			this.Cargar();
+
+   			$.mobile.loading( 'show' );
+   		}
+   },
+
    //carga los datos
    Cargar: function() {
 
@@ -34,44 +56,26 @@ $.extend( Cargar.prototype, {
 
    		//si tiene datos locales
 		if( this.datosLocales ){
-			console.log('recargando');
-
-			var loader = false;
-
-			//loader
-			if( !$('.ui-loader').is(":visible") ){
-				$.mobile.loading( 'show', {
-					text: 'Cargando',
-					textVisible: true,
-					theme: 'a',
-					html: ""
-				});
-
-				loader = true;
-			}
 			
 			this.CargarDatos();
 			this.UpdateTime();
 			this.Duplicados();
 			this.CargarSelects();
 
-			if( loader ){
-				$.mobile.hidePageLoadingMsg();				
-			}
 		}else{
-
 			$.mobile.changePage('#sincronizar', {role:'dialog', transition: "slideup"});
 		}
    },
 
    CargarDatos: function(){
    		console.log('cargando datos');
+   		
    		var table = '';
 
 	   	this.datos = JSON.parse( window.localStorage.getItem('datos') );
 
 		//carga la datbla sin filtrar
-		$.each(this.datos.INFOUNIDAD, function(f, c){
+		$.each( this.datos.INFOUNIDAD, function(f, c){
 
 			var clase = c.TIPO_VEHICULO+' '+c.ESTADO+' ';
 			if( !jQuery.isEmptyObject(c.NOMBRE_VENDEDOR) ){
@@ -230,11 +234,11 @@ $.extend( Filtro.prototype, {
 	Filtrar: function(){
 
 		$.mobile.loading( 'show', {
-				text: 'Filtrando',
-				textVisible: true,
-				theme: 'a',
-				html: ""
-			});
+			text: 'Filtrando',
+			textVisible: true,
+			theme: 'a',
+			html: ""
+		});
 	
 		if( this.noResultados ){
 			$('#no-resultados').css('display','none');		
@@ -360,6 +364,7 @@ $.extend( Datos.prototype, {
 		this.password = $("#password").val();
 
 		if( this.Valida() ){
+			
 			$.mobile.loading( 'show', {
 				text: 'Sincronizando',
 				textVisible: true,
@@ -387,17 +392,12 @@ $.extend( Datos.prototype, {
 			cache: true,
 			beforeSend: function(){
 				this.cargandoDatos = true;
-				
-				notifica.Notificacion('peticion datos');
 			},
 			success: function(data){
-
-				//GUARDA DATOS
-				
-				notifica.Notificacion('datos listos');
-
+				/*				
 				//actualiza la hora de la ultima sincronizacion
 				if( !jQuery.isEmptyObject( data ) ){
+					
 					window.localStorage.setItem( 'datos', JSON.stringify(data) );
 
 					var date = new Date();
@@ -418,46 +418,23 @@ $.extend( Datos.prototype, {
 					notifica.Notificacion('home listo');
 
 				}else{
-					notifica.Notificacion('Error datos vacios');
+					notifica.Error('Error al sincronizar, datos recibidos invalidos.');
 				}
-				this.cargandoDatos = false;
+				this.cargandoDatos = false;*/
 			},
 			fail: function(response){
 				this.cargandoDatos = false;
-				var error = '<h2>La sincronizacion de los datos ha fallado.</h2>'+
-							'<h2>Por favor asegúrese de tener una conexion a internet</h2>'+
-							'<fieldset class="ui-grid-a">'+
-								'<div class="ui-block-a" >'+
-									'<button type="button" class="cancelar-dialogo" >'+
-										'Cancel'+
-									'</button>'+
-								'</div>'+
-								'<div class="ui-block-b">'+
-									'<a clas="reintentar" type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
-										'Re intentar'+
-									'</a>'+
-								'</div>'+   
-							'</fieldset>';
-				Error(error, 'Error Sincronizar');
+				var error = 'La sincronizacion de los datos ha fallado.';
+				notifica.Error(error);
 			},
 			error: function(){
 				this.cargandoDatos = false;
-				var error = '<h2>Ha ocurrido un error al sincronizar los datos.</h2>'+
-							'<fieldset class="ui-grid-a">'+
-								'<div class="ui-block-a" >'+
-									'<button type="button" class="cancelar-dialogo" >'+
-										'Cancel'+
-									'</button>'+
-								'</div>'+
-								'<div class="ui-block-b">'+
-									'<a clas="reintentar" type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
-										'Re intentar'+
-									'</a>'+
-								'</div>'+   
-							'</fieldset>';
-				Error(error, 'Error Sincronizar');
+				var error = 'Ha ocurrido un error al sincronizar los datos.';
+				notifica.Error(error);
 			}
 		}).done(function(){
+			notifica.Notificacion('datos sincronizados');
+
 			this.cargandoDatos = false;
 			
 			sincronizar.Reservas();
@@ -475,12 +452,12 @@ $.extend( Datos.prototype, {
 			}else if( this.username === 'IPURDYPM' && this.password === 'PMCR2013' ){
 				return true;
 			}else{
-				alert("Credenciales invalidas.");
+				notifica.Notificacion("Credenciales invalidas.", 'Error');
 				return false;
 			}
 
 		}else{
-			alert("Por favor increse las credenciales.");
+			notifica.Notificacion("Por favor increse las credenciales.", 'Error');
 			return false;
 		}
 	},
@@ -506,47 +483,22 @@ $.extend( Datos.prototype, {
 			},
 			success: function(reservas){
 				window.localStorage.setItem( 'reservas', JSON.stringify(reservas) );
-				
-				notifica.Notificacion('reservas listas');
 
 				this.cargandoReservas = false;
 			},
 			fail: function(response){
 				this.cargandoReservas = false;
-				var error = '<h2>La sincronizacion de las reservas ha fallado.</h2>'+
-							'<h2>Por favor asegúrese de tener una conexion a internet</h2>'+
-							'<fieldset class="ui-grid-a">'+
-								'<div class="ui-block-a" >'+
-									'<button type="button" class="cancelar-dialogo" >'+
-										'Cancel'+
-									'</button>'+
-								'</div>'+
-								'<div class="ui-block-b">'+
-									'<a clas="reintentar" type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
-										'Re intentar'+
-									'</a>'+
-								'</div>'+   
-							'</fieldset>';
-				Error(error, 'Error Reservas');
+				var error = 'La sincronizacion de las reservas ha fallado.';
+				notifica.Error(error);
 			},
 			error: function(){
 				this.cargandoReservas = false;
-				var error = '<h2>Ha ocurrido un error al sincronizar las reservas.</h2>'+
-							'<fieldset class="ui-grid-a">'+
-								'<div class="ui-block-a" >'+
-									'<button type="button" class="cancelar-dialogo" >'+
-										'Cancel'+
-									'</button>'+
-								'</div>'+
-								'<div class="ui-block-b">'+
-									'<a clas="reintentar" type="submit" href="#sincronizar" data-rel="dialog" data-transition="slideup" >'+
-										'Re intentar'+
-									'</a>'+
-								'</div>'+   
-							'</fieldset>';
-				Error(error,'Error Reservas');
+				var error = 'Ha ocurrido un error al sincronizar las reservas.'+
+				notifica.Error(error);
 			}
 		}).done(function(){
+			notifica.Notificacion('reservas sincronizadas');
+
 			//termino de cargar las reservas
 			this.cargandoReservas = false;
 
@@ -586,6 +538,13 @@ $.extend( Detalles.prototype, {
 	Detalles: function(id){
 
 		if( window.localStorage.getItem('reservas') != null ){
+			
+			$.mobile.loading( 'show', {
+					text: '',
+					textVisible: true,
+					theme: 'a',
+					html: ""
+			});
 
 			this.reservas = JSON.parse( window.localStorage.getItem('reservas') );
 
@@ -624,6 +583,8 @@ $.extend( Detalles.prototype, {
 			
 			$.mobile.changePage('#info', { transition: "slide"} );
 
+			$.mobile.loading( 'hide' );
+
 		}else{
 			if( sincronizar.DatosListas() ){
 				alert('Por favor espere..');
@@ -639,24 +600,6 @@ $.extend( Detalles.prototype, {
 Notificaciones = function(){};
 $.extend(Notificaciones.prototype, {
 
-	Error: function(error, title){
-		if(title === null || title == ''){
-			title = 'Error';
-		}
-		$("#error div[data-role='header'] h1").html(title).trigger( "create" );
-		$("#error div[data-role='content']").html(error).trigger( "create" );
-		
-		$.mobile.changePage('#error', {role:'dialog'});
-
-		$('.cancelar-dialogo').click(function(){
-			//$('.ui-dialog').dialog('close');
-		});
-		
-		$('.reintentar').click(function(){
-			//$('.ui-dialog').dialog('close');
-		});
-	},
-
 	Notificacion: function(text, title, button){
 		if(title == null || title == '' || title == undefined ){
 			title = 'Notificacion';
@@ -664,8 +607,42 @@ $.extend(Notificaciones.prototype, {
 		if(button == null || button == '' || button == undefined ){
 			button = 'Aceptar';
 		}
-		
+
+		navigator.notification.vibrate(2000);
 		navigator.notification.beep(2);
+		navigator.notification.alert(
+		    text,  // message
+		    '',         // callback
+		    title,            // title
+		    button                // buttonName
+		);
+	},
+
+	Confirmacion: function(text, title, buttons, callback){
+		if(title == null || title == '' || title == undefined ){
+			title = 'Confirmacion';
+		}
+
+		navigator.notification.vibrate(2000);
+		navigator.notification.beep(2);
+		navigator.notification.confirm(
+		    text,  // message
+		    callback,         // callback
+		    title,            // title
+		    buttons   // buttonName
+		);
+	},
+
+	Error: function(text, title, button){
+		if(title == null || title == '' || title == undefined ){
+			title = 'Error';
+		}
+		if(button == null || button == '' || button == undefined ){
+			button = 'Aceptar';
+		}
+
+		navigator.notification.vibrate(4000);
+		navigator.notification.beep(4);
 		navigator.notification.alert(
 		    text,  // message
 		    '',         // callback
@@ -690,28 +667,6 @@ document.addEventListener("deviceready", onDeviceReady, false);
 
 function onDeviceReady() {
 	console.log('device ready');
-
-	$('.cancelar-dialogo').bind('tap', function(){
-		$('.ui-dialog').dialog('close');
-	});
-
-	/*$("#resultados tbody tr").each(function(){
-		/*$(this).click(function(){
-			InfoPage($(this).attr('id'));
-		});
-		$(this).bind('touchstart click', function(){
-			InfoPage($(this).attr('id'));
-		});
-	});*/
-	
-	$("#consultar").bind('tap', function(){
-		//Consultar();
-		cargar.Cargar();
-	});
-
-	$("#sincronizar-boton, #bienvenida-sincronizar").bind('tap', function(){
-		sincronizar.Sincronizar();
-	});
 	
 	//CARGA DATA LOCAL
 	cargar.Cargar();
@@ -725,6 +680,7 @@ function onDeviceReady() {
 $(document).bind('mobileinit',function(){
 	$.mobile.allowCrossDomainPages = true;
 	$.mobile.selectmenu.prototype.options.nativeMenu = true;
+	
 	//$.mobile.fixedToolbars.hide(true);
 	
 	$.mobile.touchOverflowEnabled = true;
@@ -744,25 +700,23 @@ $(document).ready(function(){
 	onDeviceReady();
 });
 
+function Consultar(){
+	cargar.Comfirmar();
+}
+
+function Sincronizar(){
+	sincronizar.Sincronizar();
+}
+
+function CancelarDialogo(){
+	$('.ui-dialog').dialog('close');
+}
+
 /************************* HELPES *******************/
 
 /**
 * MUESTRA UN MENSAJE DE ERROR GENERICO
 */
 function Error(error, title){
-	if(title === null || title == ''){
-		title = 'Error';
-	}
-	$("#error div[data-role='header'] h1").html(title).trigger( "create" );
-	$("#error div[data-role='content']").html(error).trigger( "create" );
-	
-	$.mobile.changePage('#error', {role:'dialog'});
-
-	$('.cancelar-dialogo').click(function(){
-		//$('.ui-dialog').dialog('close');
-	});
-	
-	$('.reintentar').click(function(){
-		//$('.ui-dialog').dialog('close');
-	});
+	notifica.Error(error, title);
 }

@@ -95,7 +95,7 @@ html, body{
 text-shadow: none;
 box-shadow: none;
 	-moz-box-shadow: none !important;
-    /*-webkit-box-shadow: none !important;*/
+    -webkit-box-shadow: none !important;
 }
 
 .in, .out {

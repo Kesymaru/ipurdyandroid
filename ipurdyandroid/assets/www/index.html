@@ -24,11 +24,11 @@
 			<div data-role="navbar" data-mini="false" data-id="navbar" data-fullscreen="true" data-grid="a" >
 				<ul>
 					<li>
-						<a id="consultar" data-icon="custom" data-iconpos="bottom" data-iconpos="center" >Consultar</a>
+						<a id="consultar" data-icon="custom" data-iconpos="bottom" data-iconpos="center" onClick="Consultar()" >Consultar</a>
 					</li>
 					
 					<li>
-						<a href="#sincronizar" data-rel="dialog" data-transition="slideup" data-icon="custom" data-iconpos="bottom" data-iconpos="center" >Sincronizar</a>
+						<a href="#sincronizar" data-rel="dialog" data-transition="slideup" data-icon="custom" data-iconpos="bottom" data-iconpos="center" onClick="Sincronizar()" >Sincronizar</a>
 					</li>
 				</ul>
 			</div>
@@ -151,12 +151,12 @@
 
 			<fieldset class="ui-grid-a">
 				<div class="ui-block-a" >
-					<button type="button" class="cancelar-dialogo" >
+					<button type="button" class="cancelar-dialogo" onClick="CancelarDialogo()" >
 						Cancel
 					</button>
 				</div>
 				<div class="ui-block-b">
-					<button type="submit" id="sincronizar-boton">
+					<button type="submit" id="sincronizar-boton" onClick="Consultar()" >  
 						Sincronizar
 					</button>
 				</div>	   
@@ -241,7 +241,7 @@
 			<p>Se requiere una conexion a internet</p>
 			<fieldset class="ui-grid-a">
 				<div class="ui-block-a" >
-					<button type="button" class="cancelar-dialogo" >
+					<button type="button" class="cancelar-dialogo" onClick="CancelarDialogo()" >
 						Cancel
 					</button>
 				</div>
