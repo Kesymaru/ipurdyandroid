@@ -52,6 +52,9 @@ html, body{
 	display: none;
 	text-align: center;
 	width: 100%;
+	
+	font-size: 25px;
+	padding: 25px 0;
 }
 
 /*********************************** ELIMINA ACELERACION GRAFICA EN GUI ANDROID *************************/
@@ -89,4 +92,11 @@ text-shadow: none;
 box-shadow: none;
 	-moz-box-shadow: none !important;
     -webkit-box-shadow: none !important;
+}
+
+.in, .out {
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-duration: 350ms;
+    -moz-animation-timing-function: ease-in-out;
+    -moz-animation-duration: 350ms;
 }

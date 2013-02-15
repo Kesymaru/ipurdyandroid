@@ -4,6 +4,7 @@
 //var resultados = $.mobile.path.parseUrl("http://77digital.digimoblabs.com/webServiceJson.php?username=ipurdy&password=12345678&action=vehiculos");
 
 /************************************************************************************** CLASE PARA CARGAR DATOS ***********************************/
+
 var tipos = [];
 var estados = [];
 var asesores = [];
@@ -127,7 +128,7 @@ $.extend( Cargar.prototype, {
 		
 		$("#resultados tbody").html(table).trigger('create');
 
-		$("#resultados tbody tr").bind('touchstart click', function(){
+		$("#resultados tbody tr").bind('tap swiperight', function(){
 			detalles.Detalles( $(this).attr('id') );
 		});
    },
@@ -478,7 +479,7 @@ $.extend( Datos.prototype, {
 		var paramsRervas = {"username" : this.username, "password" : this.password, "action" : "reservas"};
 	
 		this.ajaxReservas = $.ajax({
-			url: 'http://77digital.digimoblabs.com/webServiceJsonTest2.php',
+			url: this.url,
 			data: paramsRervas,
 			type: 'get',
 			crossDomain: true,
@@ -628,7 +629,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
 function onDeviceReady() {
 	console.log('device ready');
 
-	$('.cancelar-dialogo').bind('touchstart click', function(){
+	$('.cancelar-dialogo').bind('tap', function(){
 		$('.ui-dialog').dialog('close');
 	});
 
@@ -641,12 +642,12 @@ function onDeviceReady() {
 		});
 	});*/
 	
-	$("#consultar").bind('touchstart click', function(){
+	$("#consultar").bind('tap', function(){
 		//Consultar();
 		cargar.Cargar();
 	});
 
-	$("#sincronizar-boton, #bienvenida-sincronizar").bind('touchstart click', function(){
+	$("#sincronizar-boton, #bienvenida-sincronizar").bind('tap', function(){
 		sincronizar.Sincronizar();
 	});
 	
@@ -663,6 +664,16 @@ $(document).bind('mobileinit',function(){
 	$.mobile.allowCrossDomainPages = true;
 	$.mobile.selectmenu.prototype.options.nativeMenu = true;
 	$.mobile.fixedToolbars.hide(true);
+	
+	$.mobile.touchOverflowEnabled = true;
+	$.mobile.transitionFallbacks = 'none';
+
+	//fast buttons
+	$.mobile.buttonMarkup.hoverDelay = 500;
+
+	$.mobile.phonegapNavigationEnabled = true;
+
+	$.mobile.page.prototype.options.domCache = true;
 });
 
 

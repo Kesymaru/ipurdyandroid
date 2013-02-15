@@ -18,9 +18,9 @@
 </head>
 <body>
 
-	<div data-role="page" id="home" data-title="Ipurdy">
+	<div data-role="page" id="home" data-title="Ipurdy" data-dom-cache="true" data-enhance="false" > 
 
-		<div data-role="header">
+		<div data-role="header" data-theme="a" data-position="fixed" >
 			<div data-role="navbar" data-mini="false" data-id="navbar" data-fullscreen="true" data-grid="a" >
 				<ul>
 					<li>
@@ -76,7 +76,7 @@
 			-->
 		</div>
 
-		<div data-role="content">
+		<div data-role="content" data-fullscreen="true">
 			<!-- tabla con los contenidos -->
 			<table data-role="table" data-filter="true" data-mode="reflow" id="resultados" class="ui-responsive">
 				<thead>
@@ -132,15 +132,15 @@
 			</div>
 		</div>
 
-		<div data-role="footer" id="home-footer">
+		<div data-role="footer" id="home-footer" data-theme="a" data-position="fixed" >
 			<h3></h3>
 		</div>
 
 	</div>
 	<!-- home page -->
 
-	<div data-role="page" id="sincronizar" data-title="Sincronizar">
-		<div data-role="header">
+	<div data-role="page" id="sincronizar" data-title="Sincronizar" data-dom-cache="true" >
+		<div data-role="header" data-theme="a">
 			<h1>Sincronizar</h1>
 		</div>
 		<div data-role="content">
@@ -166,9 +166,9 @@
 	<!-- sincronizar page -->
 
 	<!-- pagina de la info -->
-	<div data-role="page" data-add-back-btn="true" data-back-btn-text="Atras" id="info" >
-		<div data-role="header" data-position="fixed" >
-			<h1>Detalle</h1>
+	<div data-role="page" data-add-back-btn="true" data-back-btn-text="Atras" data-title="Detalles" id="info" data-dom-cache="true" >
+		<div data-role="header" data-position="fixed" data-theme="a" >
+			<h1>Detalles</h1>
 		</div>
 		<div data-role="content" >
 			<table id="table-info" data-role="table" data-filter="true" data-mode="reflow" class="ui-responsive">
@@ -227,12 +227,12 @@
 				</tbody>
 			</table>
 		</div>
-		<div id="info-footer" data-role="footer" data-position="fixed">
+		<div id="info-footer" data-role="footer" data-position="fixed" data-theme="a">
 			<h3></h3>
 		</div>
 	</div>
 
-	<div data-role="page" id="error">
+	<div data-role="page" id="error" data-theme="a" data-title="Error" data-dom-cache="true" >
 		<div data-role="header">
 			<h1>Error</h1>
 		</div>
