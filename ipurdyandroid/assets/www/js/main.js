@@ -35,15 +35,29 @@ $.extend( Cargar.prototype, {
    		//si tiene datos locales
 		if( this.datosLocales ){
 			console.log('recargando');
+
+			var loader = false;
+
 			//loader
-			$.mobile.showPageLoadingMsg();
+			if( !$('.ui-loader').is(":visible") ){
+				$.mobile.loading( 'show', {
+					text: 'Cargando',
+					textVisible: true,
+					theme: 'a',
+					html: ""
+				});
+
+				loader = true;
+			}
 			
 			this.CargarDatos();
 			this.UpdateTime();
 			this.Duplicados();
 			this.CargarSelects();
 
-			$.mobile.hidePageLoadingMsg();
+			if( loader ){
+				$.mobile.hidePageLoadingMsg();				
+			}
 		}else{
 
 			$.mobile.changePage('#sincronizar', {role:'dialog', transition: "slideup"});
@@ -125,7 +139,7 @@ $.extend( Cargar.prototype, {
 				asesores.push(c.NOMBRE_VENDEDOR);
 			}
 		});
-		
+
 		$("#resultados tbody").html(table).trigger('create');
 
 		$("#resultados tbody tr").bind('tap swiperight', function(){
@@ -165,10 +179,11 @@ $.extend( Cargar.prototype, {
 	},
 
    CargarSelects: function(){
+   		
    		//defaults
-		$("#select-tipo").append('<option value="todos" selected>Todos</option>');
-		$("#select-asesor").append('<option value="todos" selected>Todos</option>');
-		$("#select-sucursal").append('<option value="todos" selected>Todos</option>');
+		$("#select-tipo").html('<option value="todos" selected>Todos</option>');
+		$("#select-asesor").html('<option value="todos" selected>Todos</option>');
+		$("#select-sucursal").html('<option value="todos" selected>Todos</option>');
 
 		this.tipos = JSON.parse( window.localStorage.getItem('tipos') );
 		$.each(this.tipos, function(f, valor){
@@ -214,7 +229,12 @@ $.extend( Filtro.prototype, {
 	//filtra
 	Filtrar: function(){
 
-		$.mobile.showPageLoadingMsg();
+		$.mobile.loading( 'show', {
+				text: 'Filtrando',
+				textVisible: true,
+				theme: 'a',
+				html: ""
+			});
 	
 		if( this.noResultados ){
 			$('#no-resultados').css('display','none');		
@@ -340,27 +360,22 @@ $.extend( Datos.prototype, {
 		this.password = $("#password").val();
 
 		if( this.Valida() ){
+			$.mobile.loading( 'show', {
+				text: 'Sincronizando',
+				textVisible: true,
+				theme: 'a',
+				html: ""
+			});
+
 			this.Datos();
 		}
 	},
 
 	//obtiene los datos, sincroniza
 	Datos: function(){
-		
-		this.queryParams = '&username='+username+"&password="+password;
-
-		//$.mobile.showPageLoadingMsg();
-		$.mobile.loading( 'show', {
-			text: 'Por favor espere',
-			textVisible: true,
-			theme: 'a',
-			html: ""
-		});
 				
 		var paramsDatos = {"username" : this.username, "password" : this.password, "accion" : "vehiculos"};
 		
-		console.log(this.username+' '+this.password);
-
 		this.ajaxDatos = $.ajax({
 			url: this.url,
 			data: paramsDatos,
@@ -372,13 +387,14 @@ $.extend( Datos.prototype, {
 			cache: true,
 			beforeSend: function(){
 				this.cargandoDatos = true;
-				alert('peticion datos');
+				
+				notifica.Notificacion('peticion datos');
 			},
 			success: function(data){
 
 				//GUARDA DATOS
 				
-				alert('datos listos');
+				notifica.Notificacion('datos listos');
 
 				//actualiza la hora de la ultima sincronizacion
 				if( !jQuery.isEmptyObject( data ) ){
@@ -399,10 +415,10 @@ $.extend( Datos.prototype, {
 					//CARGA LOS DATOS
 					cargar.Cargar();
 
-					alert('home listo');
+					notifica.Notificacion('home listo');
 
 				}else{
-					alert('Error datos vacios');
+					notifica.Notificacion('Error datos vacios');
 				}
 				this.cargandoDatos = false;
 			},
@@ -444,10 +460,6 @@ $.extend( Datos.prototype, {
 		}).done(function(){
 			this.cargandoDatos = false;
 			
-			$.mobile.hidePageLoadingMsg();
-			$('.ui-dialog').dialog('close');
-			
-			//CARGA RESERVAS PASIVAMENTE
 			sincronizar.Reservas();
 		});
 	},
@@ -476,7 +488,7 @@ $.extend( Datos.prototype, {
 	//OBTIENE LAS RESERVAS
 	Reservas: function(){
 
-		var paramsRervas = {"username" : this.username, "password" : this.password, "action" : "reservas"};
+		var paramsRervas = {"username" : this.username, "password" : this.password, "accion" : "reservas"};
 	
 		this.ajaxReservas = $.ajax({
 			url: this.url,
@@ -488,12 +500,15 @@ $.extend( Datos.prototype, {
 	        dataType: "json",
 			cache: true,
 			beforeSend: function(){
-				alert('peticion reservas');
+				notifica.Notificacion('peticion reservas');
+
 				cargandoReservas = true;
 			},
 			success: function(reservas){
 				window.localStorage.setItem( 'reservas', JSON.stringify(reservas) );
-				alert('reservas listas');
+				
+				notifica.Notificacion('reservas listas');
+
 				this.cargandoReservas = false;
 			},
 			fail: function(response){
@@ -534,6 +549,10 @@ $.extend( Datos.prototype, {
 		}).done(function(){
 			//termino de cargar las reservas
 			this.cargandoReservas = false;
+
+			$.mobile.loading('hide');
+
+			$('.ui-dialog').dialog('close');
 		});
 	},
 
@@ -615,11 +634,54 @@ $.extend( Detalles.prototype, {
 	}
 });
 
+/******************************************************************* CLASE PARA NOTIFICACIONES Y ERRORES **********************************/
+
+Notificaciones = function(){};
+$.extend(Notificaciones.prototype, {
+
+	Error: function(error, title){
+		if(title === null || title == ''){
+			title = 'Error';
+		}
+		$("#error div[data-role='header'] h1").html(title).trigger( "create" );
+		$("#error div[data-role='content']").html(error).trigger( "create" );
+		
+		$.mobile.changePage('#error', {role:'dialog'});
+
+		$('.cancelar-dialogo').click(function(){
+			//$('.ui-dialog').dialog('close');
+		});
+		
+		$('.reintentar').click(function(){
+			//$('.ui-dialog').dialog('close');
+		});
+	},
+
+	Notificacion: function(text, title, button){
+		if(title == null || title == '' || title == undefined ){
+			title = 'Notificacion';
+		}
+		if(button == null || button == '' || button == undefined ){
+			button = 'Aceptar';
+		}
+		
+		navigator.notification.beep(2);
+		navigator.notification.alert(
+		    text,  // message
+		    '',         // callback
+		    title,            // title
+		    button                // buttonName
+		);
+	}
+});
+
 //clases en cache, mejora el rendimiento
 var cargar = new Cargar();
 var filtro = new Filtro();
 var sincronizar = new Datos();
 var detalles = new Detalles();
+
+var notifica = new Notificaciones();
 
 /************************************************************************************* PHONEGAP ********************************************/
 
@@ -663,7 +725,7 @@ function onDeviceReady() {
 $(document).bind('mobileinit',function(){
 	$.mobile.allowCrossDomainPages = true;
 	$.mobile.selectmenu.prototype.options.nativeMenu = true;
-	$.mobile.fixedToolbars.hide(true);
+	//$.mobile.fixedToolbars.hide(true);
 	
 	$.mobile.touchOverflowEnabled = true;
 	$.mobile.transitionFallbacks = 'none';
@@ -674,6 +736,7 @@ $(document).bind('mobileinit',function(){
 	$.mobile.phonegapNavigationEnabled = true;
 
 	$.mobile.page.prototype.options.domCache = true;
+	$.mobile.useFastClick  = false;
 });
 
 
