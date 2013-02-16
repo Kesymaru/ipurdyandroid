@@ -8,7 +8,8 @@ public class IpurdyandroidActivity extends DroidGap {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.setIntegerProperty("loadUrlTimeoutValue", 70000);
-        super.loadUrl("file:///android_asset/www/index.html");
+        //super.setIntegerProperty("loadUrlTimeoutValue", 70000);
+        super.setIntegerProperty("splashscreen", R.drawable.splash);
+        super.loadUrl("file:///android_asset/www/index.html", 70000);
     }
 }

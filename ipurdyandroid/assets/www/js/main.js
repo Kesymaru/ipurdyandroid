@@ -22,24 +22,37 @@ $.extend( Cargar.prototype, {
    },
 
    Comfirmar: function(){
-   		notifica.Confirmacion('Desear Re cargar los datos', 'Re cargar', 'Si,No', cargar.Confirmado );
+   		notifica.Confirmacion('Desear Recargar los datos', 'Recargar Datos', 'Si,No', cargar.Confirmado );
    },
 
    Confirmado: function(button){
-   		alert('selecciono '+button);
+   		//alert('selecciono '+button);
    		
-   		if(button == 2){
-   			//recarga datos
-   			$.mobile.loading( 'show', {
-				text: 'Filtrando',
-				textVisible: true,
-				theme: 'a',
-				html: ""
-			});
+   		if(button == 1){
+   			if( !this.datosLocales ){
+	   			if( window.localStorage.getItem("datos") === null ){
+		   			this.datosLocales = false;
+		   		}else{
+		   			this.datosLocales = true;
+		   		}
+	   		}
+	   		if( this.datosLocales ){	   			
+	   			$.mobile.loading( 'show', {
+					text: 'Filtrando',
+					textVisible: true,
+					theme: 'a',
+					html: ""
+				});
+	   		}
 
+	   		//recarga datos
    			this.Cargar();
 
-   			$.mobile.loading( 'show' );
+   			if( this.datosLocales ){
+   				$.mobile.loading( 'hide' );
+   			}
+   		}else{
+   			return;
    		}
    },
 
@@ -394,7 +407,7 @@ $.extend( Datos.prototype, {
 				this.cargandoDatos = true;
 			},
 			success: function(data){
-				/*				
+								
 				//actualiza la hora de la ultima sincronizacion
 				if( !jQuery.isEmptyObject( data ) ){
 					
@@ -420,7 +433,7 @@ $.extend( Datos.prototype, {
 				}else{
 					notifica.Error('Error al sincronizar, datos recibidos invalidos.');
 				}
-				this.cargandoDatos = false;*/
+				this.cargandoDatos = false;
 			},
 			fail: function(response){
 				this.cargandoDatos = false;
@@ -504,7 +517,7 @@ $.extend( Datos.prototype, {
 
 			$.mobile.loading('hide');
 
-			$('.ui-dialog').dialog('close');
+			CancelarDialogo();
 		});
 	},
 
@@ -608,18 +621,19 @@ $.extend(Notificaciones.prototype, {
 			button = 'Aceptar';
 		}
 
-		navigator.notification.vibrate(2000);
+		/*navigator.notification.vibrate(2000);
 		navigator.notification.beep(2);
 		navigator.notification.alert(
 		    text,  // message
 		    '',         // callback
 		    title,            // title
 		    button                // buttonName
-		);
+		);*/
+		alert(text);
 	},
 
 	Confirmacion: function(text, title, buttons, callback){
-		if(title == null || title == '' || title == undefined ){
+		/*if(title == null || title == '' || title == undefined ){
 			title = 'Confirmacion';
 		}
 
@@ -630,7 +644,8 @@ $.extend(Notificaciones.prototype, {
 		    callback,         // callback
 		    title,            // title
 		    buttons   // buttonName
-		);
+		);*/
+		cargar.Confirmado(1);
 	},
 
 	Error: function(text, title, button){
@@ -641,14 +656,15 @@ $.extend(Notificaciones.prototype, {
 			button = 'Aceptar';
 		}
 
-		navigator.notification.vibrate(4000);
+		/*navigator.notification.vibrate(4000);
 		navigator.notification.beep(4);
 		navigator.notification.alert(
 		    text,  // message
 		    '',         // callback
 		    title,            // title
 		    button                // buttonName
-		);
+		);*/
+		alert(text);
 	}
 });
 
@@ -666,8 +682,8 @@ var notifica = new Notificaciones();
 document.addEventListener("deviceready", onDeviceReady, false);
 
 function onDeviceReady() {
-	console.log('device ready');
-	
+	navigator.splashscreen.hide();
+
 	//CARGA DATA LOCAL
 	cargar.Cargar();
 
@@ -676,6 +692,13 @@ function onDeviceReady() {
 }
 
 /************************** JQUERY *********************/
+
+$(document).delegate('#sincronizar', 'pageshow', function () {
+    /*$('#sincronizarHeader .ui-btn').bind('tap', function(){
+		CancelarDialogo();
+	});*/
+	$('#sincronizarHeader .ui-btn').remove();
+});
 
 $(document).bind('mobileinit',function(){
 	$.mobile.allowCrossDomainPages = true;
@@ -693,6 +716,8 @@ $(document).bind('mobileinit',function(){
 
 	$.mobile.page.prototype.options.domCache = true;
 	$.mobile.useFastClick  = false;
+
+	$.mobile.dialog.prototype.options.hideCloseBtn = true;
 });
 
 
@@ -700,16 +725,20 @@ $(document).ready(function(){
 	onDeviceReady();
 });
 
+//consulta
 function Consultar(){
 	cargar.Comfirmar();
 }
 
+//sincroniza
 function Sincronizar(){
 	sincronizar.Sincronizar();
 }
 
+//cierra el dialogo
 function CancelarDialogo(){
-	$('.ui-dialog').dialog('close');
+	//$('.ui-dialog').dialog('close');
+	$.mobile.changePage('#home', {role: 'page', transition: 'slideup'});
 }
 
 /************************* HELPES *******************/

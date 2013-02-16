@@ -42,7 +42,13 @@
     <preference
         name="exit-on-suspend"
         value="false" />
-
+	
+    <preference 
+        name="orientation" 
+        value="landscape" />
+    
+    <icon src="appicon.png" />
+    
     <plugins>
         <plugin
             name="App"
