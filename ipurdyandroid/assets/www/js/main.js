@@ -25,9 +25,9 @@ $.extend( Cargar.prototype, {
    		notifica.Confirmacion('Desear Recargar los datos', 'Recargar Datos', 'Si,No', cargar.Confirmado );
    },
 
+   //confirma la recarga
    Confirmado: function(button){
-   		//alert('selecciono '+button);
-   		
+		   		
    		if(button == 1){
    			if( !this.datosLocales ){
 	   			if( window.localStorage.getItem("datos") === null ){
@@ -80,6 +80,7 @@ $.extend( Cargar.prototype, {
 		}
    },
 
+   //carga los datos
    CargarDatos: function(){
    		console.log('cargando datos');
    		
@@ -599,11 +600,7 @@ $.extend( Detalles.prototype, {
 			$.mobile.loading( 'hide' );
 
 		}else{
-			if( sincronizar.DatosListas() ){
-				alert('Por favor espere..');
-			}else{
-				alert('Error: datos de reservas no disponible.');
-			}
+			alert('Error: datos de reservas no disponible.');
 		}
 	}
 });
@@ -621,19 +618,19 @@ $.extend(Notificaciones.prototype, {
 			button = 'Aceptar';
 		}
 
-		/*navigator.notification.vibrate(2000);
+		navigator.notification.vibrate(2000);
 		navigator.notification.beep(2);
 		navigator.notification.alert(
 		    text,  // message
 		    '',         // callback
 		    title,            // title
 		    button                // buttonName
-		);*/
-		alert(text);
+		);
 	},
 
+	//dialogo de confirmacion
 	Confirmacion: function(text, title, buttons, callback){
-		/*if(title == null || title == '' || title == undefined ){
+		if(title == null || title == '' || title == undefined ){
 			title = 'Confirmacion';
 		}
 
@@ -644,10 +641,10 @@ $.extend(Notificaciones.prototype, {
 		    callback,         // callback
 		    title,            // title
 		    buttons   // buttonName
-		);*/
-		cargar.Confirmado(1);
+		);
 	},
 
+	//notifica error
 	Error: function(text, title, button){
 		if(title == null || title == '' || title == undefined ){
 			title = 'Error';
@@ -656,15 +653,14 @@ $.extend(Notificaciones.prototype, {
 			button = 'Aceptar';
 		}
 
-		/*navigator.notification.vibrate(4000);
+		navigator.notification.vibrate(4000);
 		navigator.notification.beep(4);
 		navigator.notification.alert(
 		    text,  // message
 		    '',         // callback
 		    title,            // title
 		    button                // buttonName
-		);*/
-		alert(text);
+		);
 	}
 });
 
@@ -682,13 +678,14 @@ var notifica = new Notificaciones();
 document.addEventListener("deviceready", onDeviceReady, false);
 
 function onDeviceReady() {
-	navigator.splashscreen.hide();
-
+	
 	//CARGA DATA LOCAL
 	cargar.Cargar();
 
 	//inicializa los filtros
 	filtro.init();
+
+	navigator.splashscreen.hide();
 }
 
 /************************** JQUERY *********************/
