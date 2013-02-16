@@ -27,8 +27,9 @@ $.extend( Cargar.prototype, {
 
    //confirma la recarga
    Confirmado: function(button){
-		   		
-   		if(button == 1){
+
+   		if(button == 1 || button == '1'){
+   			
    			if( !this.datosLocales ){
 	   			if( window.localStorage.getItem("datos") === null ){
 		   			this.datosLocales = false;
@@ -38,7 +39,7 @@ $.extend( Cargar.prototype, {
 	   		}
 	   		if( this.datosLocales ){	   			
 	   			$.mobile.loading( 'show', {
-					text: 'Filtrando',
+					text: 'Recargando datos',
 					textVisible: true,
 					theme: 'a',
 					html: ""
@@ -55,7 +56,7 @@ $.extend( Cargar.prototype, {
    			return;
    		}
    },
-
+   
    //carga los datos
    Cargar: function() {
 
@@ -518,7 +519,7 @@ $.extend( Datos.prototype, {
 
 			$.mobile.loading('hide');
 
-			CancelarDialogo();
+			$.mobile.changePage('#home', {role: 'page', transition: 'slideup'});
 		});
 	},
 
@@ -551,7 +552,7 @@ $.extend( Detalles.prototype, {
 	//muesta la info de un registro
 	Detalles: function(id){
 
-		if( window.localStorage.getItem('reservas') != null ){
+		//if( window.localStorage.getItem('reservas') != null ){
 			
 			$.mobile.loading( 'show', {
 					text: '',
@@ -599,9 +600,9 @@ $.extend( Detalles.prototype, {
 
 			$.mobile.loading( 'hide' );
 
-		}else{
+		/*}else{
 			alert('Error: datos de reservas no disponible.');
-		}
+		}*/
 	}
 });
 
